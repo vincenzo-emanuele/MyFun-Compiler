@@ -31,6 +31,14 @@ public class Record {
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        return "Record{" +
+                "lexeme='" + lexeme + '\'' +
+                ", type='" + type + '\'' +
+                '}';
+    }
+
     private String lexeme;
     private String type;
 

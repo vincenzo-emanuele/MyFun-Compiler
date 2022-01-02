@@ -9,7 +9,7 @@ public class SymbolNode extends DefaultMutableTreeNode {
         super("SymbolNode");
         payload = new HashMap<>();
         if(father != null){
-            this.setParent(father);
+            //this.setParent(father);
         }
     }
 

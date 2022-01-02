@@ -60,6 +60,7 @@ public class ScopeVisitor implements Visitor {
     public Object visit(FunOp funOp) {
         SymbolNode parentSymbolNode = ((SyntaxNode) funOp.getParent()).getSymbolNode();
         SymbolNode newSymbolNode = new SymbolNode(parentSymbolNode);
+        parentSymbolNode.add(newSymbolNode);
         funOp.setSymbolNode(newSymbolNode);
         IdOp idOp = (IdOp) funOp.getChildAt(0);
         String id = ((Record) idOp.accept(this)).getLexeme();
@@ -68,16 +69,15 @@ public class ScopeVisitor implements Visitor {
         VarDeclOpList varDeclOpList;
         StatOpList statOpList;
         Record outRecord = new Record();
+        String formattedType = "";
+        for(Record r : paramDeclListIds){
+            formattedType += r.getType() + " ";
+        }
+        outRecord.setLexeme(id);
         if(funOp.getChildAt(2) instanceof TypeOp){
             TypeOp typeOp = (TypeOp) funOp.getChildAt(2);
             String type = (String) typeOp.accept(this);
-            String formattedType = "";
-            for(Record r : paramDeclListIds){
-                formattedType += r.getType() + " ";
-            }
             formattedType += "-> " + type;
-            outRecord.setLexeme(id);
-            outRecord.setType(type);
             //outRecord = new Record(id, formattedType);
             //parentSymbolNode.add(id, new SymbolType("Fun", formattedType));
             varDeclOpList = (VarDeclOpList) funOp.getChildAt(3);
@@ -86,6 +86,7 @@ public class ScopeVisitor implements Visitor {
             varDeclOpList = (VarDeclOpList) funOp.getChildAt(2);
             statOpList = (StatOpList) funOp.getChildAt(3);
         }
+        outRecord.setType(formattedType);
         ArrayList<Record> varDeclIds = (ArrayList<Record>) varDeclOpList.accept(this);
         //ArrayList<Record> statOpIds = (ArrayList<Record>) statOpList.accept(this);
         ArrayList<Record> outIds = new ArrayList<>();
@@ -110,6 +111,7 @@ public class ScopeVisitor implements Visitor {
             Record funOpRecord = (Record) funOp.accept(this);
             FunOpList funOpList1 = (FunOpList) funOpList.getChildAt(1);
             ids = (ArrayList<Record>) funOpList1.accept(this);
+            //System.out.println("LISTAA " + ids);
             ids.add(funOpRecord);
         }
         return ids;
@@ -254,7 +256,8 @@ public class ScopeVisitor implements Visitor {
         TypeOp typeOp = (TypeOp) parDeclOp.getChildAt(1);
         IdOp idOp = (IdOp) parDeclOp.getChildAt(2);
         String type = (String) typeOp.accept(this);
-        String id = (String) idOp.accept(this);
+        String id = ((Record) idOp.accept(this)).getLexeme();
+        System.out.println("ID: " + id);
         return new Record(id, type);
     }
 
@@ -311,7 +314,7 @@ public class ScopeVisitor implements Visitor {
 
     @Override
     public Object visit(TypeOp typeOp) {
-        return null;
+        return typeOp.getUserObject();
     }
 
     @Override

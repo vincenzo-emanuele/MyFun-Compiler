@@ -9,4 +9,9 @@ public class ParDeclOp extends SyntaxNode{
         add(idOp);
     }
 
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
+    }
+
 }

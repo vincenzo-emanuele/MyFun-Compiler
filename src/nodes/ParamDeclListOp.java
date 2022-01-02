@@ -8,4 +8,9 @@ public class ParamDeclListOp extends SyntaxNode{
         super("ParamDeclListOp");
         add(list);
     }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
+    }
 }

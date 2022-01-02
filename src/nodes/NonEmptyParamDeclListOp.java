@@ -12,4 +12,9 @@ public class NonEmptyParamDeclListOp extends SyntaxNode{
         add(p);
     }
 
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
+    }
+
 }

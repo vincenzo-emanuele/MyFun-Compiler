@@ -2,6 +2,7 @@
 
 import nodes.ProgramOp;
 import scope.ScopeVisitor;
+import scope.SymbolNode;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -28,7 +29,11 @@ public class Tester {
         JFrame frame = new JFrame("Manual Nodes");
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) p.parse().value;
         ScopeVisitor scopeVisitor = new ScopeVisitor();
+        SymbolNode symbolNode2 = (SymbolNode) scopeVisitor.visit((ProgramOp) root);
         System.out.println(scopeVisitor.visit((ProgramOp) root));
+        System.out.println(symbolNode2.getChildAt(0));
+        System.out.println(symbolNode2.getChildAt(1));
+        //System.out.println(scopeVisitor.visit((ProgramOp) root));
         //System.out.println(((ProgramOp) root).accept(scopeVisitor));
         JTree tree = new JTree(root);
         JScrollPane scrollPane = new JScrollPane(tree);
