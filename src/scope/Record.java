@@ -2,6 +2,10 @@ package scope;
 
 public class Record {
 
+    public Record(){
+
+    }
+
     public Record(String lexeme){
         this.lexeme = lexeme;
     }

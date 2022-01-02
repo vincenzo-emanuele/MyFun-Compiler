@@ -58,12 +58,61 @@ public class ScopeVisitor implements Visitor {
 
     @Override
     public Object visit(FunOp funOp) {
-        return null;
+        SymbolNode parentSymbolNode = ((SyntaxNode) funOp.getParent()).getSymbolNode();
+        SymbolNode newSymbolNode = new SymbolNode(parentSymbolNode);
+        funOp.setSymbolNode(newSymbolNode);
+        IdOp idOp = (IdOp) funOp.getChildAt(0);
+        String id = ((Record) idOp.accept(this)).getLexeme();
+        ParamDeclListOp paramDeclListOp = (ParamDeclListOp) funOp.getChildAt(1);
+        ArrayList<Record> paramDeclListIds = (ArrayList<Record>) paramDeclListOp.accept(this);
+        VarDeclOpList varDeclOpList;
+        StatOpList statOpList;
+        Record outRecord = new Record();
+        if(funOp.getChildAt(2) instanceof TypeOp){
+            TypeOp typeOp = (TypeOp) funOp.getChildAt(2);
+            String type = (String) typeOp.accept(this);
+            String formattedType = "";
+            for(Record r : paramDeclListIds){
+                formattedType += r.getType() + " ";
+            }
+            formattedType += "-> " + type;
+            outRecord.setLexeme(id);
+            outRecord.setType(type);
+            //outRecord = new Record(id, formattedType);
+            //parentSymbolNode.add(id, new SymbolType("Fun", formattedType));
+            varDeclOpList = (VarDeclOpList) funOp.getChildAt(3);
+            statOpList = (StatOpList) funOp.getChildAt(4);
+        } else {
+            varDeclOpList = (VarDeclOpList) funOp.getChildAt(2);
+            statOpList = (StatOpList) funOp.getChildAt(3);
+        }
+        ArrayList<Record> varDeclIds = (ArrayList<Record>) varDeclOpList.accept(this);
+        //ArrayList<Record> statOpIds = (ArrayList<Record>) statOpList.accept(this);
+        ArrayList<Record> outIds = new ArrayList<>();
+        outIds.addAll(paramDeclListIds);
+        outIds.addAll(varDeclIds);
+        //outIds.addAll(statOpIds);
+        for(Record r : outIds){
+            if(!newSymbolNode.add(r.getLexeme(), new SymbolType("Var", r.getType()))){
+                System.out.println("VARIABILE GIA DICHIARATA"); //TODO: gestione dell'errore
+            }
+        }
+        return outRecord;
     }
 
     @Override
     public Object visit(FunOpList funOpList) {
-        return null;
+        SymbolNode symbolNode = ((SyntaxNode) funOpList.getParent()).getSymbolNode();
+        funOpList.setSymbolNode(symbolNode);
+        ArrayList<Record> ids = new ArrayList<>();
+        if(funOpList.getChildCount() != 0){
+            FunOp funOp = (FunOp) funOpList.getChildAt(0);
+            Record funOpRecord = (Record) funOp.accept(this);
+            FunOpList funOpList1 = (FunOpList) funOpList.getChildAt(1);
+            ids = (ArrayList<Record>) funOpList1.accept(this);
+            ids.add(funOpRecord);
+        }
+        return ids;
     }
 
     @Override
@@ -76,13 +125,13 @@ public class ScopeVisitor implements Visitor {
             ConstOp constOp = (ConstOp) idListInitObblOp.getChildAt(1);
             Object constant = constOp.accept(this);
             if(constant instanceof Boolean){
-                record.setType("Boolean");
+                record.setType("BOOLEAN");
             } else if(constant instanceof Integer){
-                record.setType("Integer");
+                record.setType("INTEGER");
             } else if(constant instanceof Double){
-                record.setType("Double");
+                record.setType("DOUBLE");
             } else {
-                record.setType("String");
+                record.setType("STRING");
             }
             ArrayList<Record> ids = new ArrayList<Record>();
             ids.add(record);
@@ -95,13 +144,13 @@ public class ScopeVisitor implements Visitor {
             ConstOp constOp = (ConstOp) idListInitObblOp.getChildAt(2);
             Object constant = constOp.accept(this);
             if(constant instanceof Boolean){
-                record.setType("Boolean");
+                record.setType("BOOLEAN");
             } else if(constant instanceof Integer){
-                record.setType("Integer");
+                record.setType("INTEGER");
             } else if(constant instanceof Double){
-                record.setType("Double");
+                record.setType("DOUBLE");
             } else {
-                record.setType("String");
+                record.setType("STRING");
             }
             ids.add(record);
             return ids;
@@ -168,17 +217,45 @@ public class ScopeVisitor implements Visitor {
 
     @Override
     public Object visit(NonEmptyParamDeclListOp nonEmptyParamDeclListOp) {
-        return null;
+        SymbolNode symbolNode = ((SyntaxNode) nonEmptyParamDeclListOp.getParent()).getSymbolNode();
+        nonEmptyParamDeclListOp.setSymbolNode(symbolNode);
+        if(nonEmptyParamDeclListOp.getChildAt(0) instanceof ParDeclOp){
+            ParDeclOp parDeclOp = (ParDeclOp) nonEmptyParamDeclListOp.getChildAt(0);
+            ArrayList<Record> parDeclIds = new ArrayList<>();
+            Record parDeclId = (Record) parDeclOp.accept(this);
+            parDeclIds.add(parDeclId);
+            return parDeclIds;
+        } else {
+            NonEmptyParamDeclListOp nonEmptyParamDeclListOp1 = (NonEmptyParamDeclListOp) nonEmptyParamDeclListOp.getChildAt(0);
+            ArrayList<Record> nonEmptyParamDeclListIds = (ArrayList<Record>) nonEmptyParamDeclListOp1.accept(this);
+            ParDeclOp parDeclOp = (ParDeclOp) nonEmptyParamDeclListOp.getChildAt(1);
+            Record parDeclId = (Record) parDeclOp.accept(this);
+            nonEmptyParamDeclListIds.add(parDeclId);
+            return nonEmptyParamDeclListIds;
+        }
     }
 
     @Override
     public Object visit(ParamDeclListOp paramDeclListOp) {
-        return null;
+        SymbolNode symbolNode = ((SyntaxNode) paramDeclListOp.getParent()).getSymbolNode();
+        paramDeclListOp.setSymbolNode(symbolNode);
+        ArrayList<Record> paramDeclListIds = new ArrayList<>();
+        if(paramDeclListOp.getChildCount() != 0){
+            NonEmptyParamDeclListOp nonEmptyParamDeclListOp = (NonEmptyParamDeclListOp) paramDeclListOp.getChildAt(0);
+            paramDeclListIds = (ArrayList<Record>) nonEmptyParamDeclListOp.accept(this);
+        }
+        return paramDeclListIds;
     }
 
     @Override
     public Object visit(ParDeclOp parDeclOp) {
-        return null;
+        SymbolNode symbolNode = ((SyntaxNode) parDeclOp.getParent()).getSymbolNode();
+        parDeclOp.setSymbolNode(symbolNode);
+        TypeOp typeOp = (TypeOp) parDeclOp.getChildAt(1);
+        IdOp idOp = (IdOp) parDeclOp.getChildAt(2);
+        String type = (String) typeOp.accept(this);
+        String id = (String) idOp.accept(this);
+        return new Record(id, type);
     }
 
     @Override
@@ -195,7 +272,10 @@ public class ScopeVisitor implements Visitor {
         }
         if(programOp.getChildAt(1) != null){
             FunOpList funOpList = (FunOpList) programOp.getChildAt(1);
-            funOpList.accept(this);
+            ArrayList<Record> funOpListRecords = (ArrayList<Record>) funOpList.accept(this);
+            for(Record r : funOpListRecords){
+                symbolNode.add(r.getLexeme(), new SymbolType("Fun", r.getType()));
+            }
             //visit(funOpList);
         }
         MainOp mainOp = (MainOp) programOp.getChildAt(2);
