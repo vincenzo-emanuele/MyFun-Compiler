@@ -1,0 +1,182 @@
+// java -jar ../CUP/java-cup-11b.jar -dump -destdir src srcjflexcup/myfun.cup 2> dump_file
+// java -jar ../CUP/java-cup-11b.jar -destdir src srcjflexcup/myfun.cup
+import nodes.*;
+terminal MAIN, VAR, OUT, INTEGER, STRING, REAL, BOOL, LPAR, RPAR, COLON, FUN, END, IF, THEN, ELSE, WHILE, LOOP, READ, WRITE, WRITELN, WRITEB, WRITET, ASSIGN, PLUS, MINUS, TIMES, DIVINT, DIV, POW, STR_CONCAT, EQ, NE, LT, LE, GT, GE, AND, OR, NOT, TRUE, FALSE, SEMI, COMMA, RETURN, OUTPAR, UMINUS;
+terminal String STRING_CONST;
+terminal Integer INTEGER_CONST;
+terminal Double REAL_CONST;
+terminal String ID;
+
+nonterminal MainOp Main;
+nonterminal TypeOp Type;
+nonterminal IdListInitOp IdListInit;
+nonterminal IdListInitObblOp IdListInitObbl;
+nonterminal ConstOp Const;
+nonterminal ParamDeclListOp ParamDeclList;
+nonterminal NonEmptyParamDeclListOp NonEmptyParamDeclList;
+nonterminal ParDeclOp ParDecl;
+nonterminal StatOpList StatList;
+nonterminal ElseOp Else;
+nonterminal FunOp Fun;
+nonterminal VarDeclOp VarDecl;
+nonterminal FunOpList FunList;
+nonterminal VarDeclOpList VarDeclList;
+nonterminal ProgramOp Program;
+nonterminal ExprNode Expr;
+nonterminal ExprListOp ExprList;
+nonterminal CallFunOp CallFun;
+nonterminal AssignStatOp AssignStat;
+nonterminal IdListOp IdList;
+nonterminal WriteStatOp WriteStat;
+nonterminal ReadStatOp ReadStat;
+nonterminal StatOp Stat;
+nonterminal WhileStatOp WhileStat;
+nonterminal IfStatOp IfStat;
+
+precedence left OR;
+precedence left AND;
+precedence right NOT;
+precedence nonassoc EQ, NE, LE, LT, GE, GT;
+precedence left STR_CONCAT;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVINT, DIV;
+precedence right POW;
+precedence left LPAR, RPAR;
+precedence right UMINUS;
+
+Program ::= VarDeclList:varDeclList FunList:funList Main:main {:RESULT = new ProgramOp(varDeclList, funList, main);:}
+;
+
+VarDeclList ::= /* empty */ {:RESULT = new VarDeclOpList();:}
+	| VarDecl:v VarDeclList:list {:RESULT = new VarDeclOpList(v, list);:}
+;
+
+Main ::= MAIN VarDeclList:varDeclList StatList:statList END MAIN SEMI {:RESULT = new MainOp(varDeclList, statList);:}
+;
+
+FunList ::= /* empty */ {:RESULT = new FunOpList();:}
+	| Fun:f FunList:list {:RESULT = new FunOpList(f, list);:}
+;
+
+VarDecl ::= Type:t IdListInit:idList SEMI {:RESULT = new VarDeclOp(t, idList);:}
+	| VAR IdListInitObbl:idListObbl SEMI {:RESULT = new VarDeclOp(idListObbl);:}
+;
+
+Type ::= INTEGER {:RESULT = new TypeOp("INTEGER");:}
+        | BOOL {:RESULT = new TypeOp("BOOL");:}
+        | REAL {:RESULT = new TypeOp("REAL");:}
+        | STRING {:RESULT = new TypeOp("STRING");:}
+;
+
+IdListInit ::= ID:val {:RESULT = new IdListInitOp(new IdOp(val));:}
+	| IdListInit:list COMMA ID:val {:RESULT = new IdListInitOp(list, new IdOp(val));:}
+	| ID:val ASSIGN Expr:e {:RESULT = new IdListInitOp(new IdOp(val), e);:}
+	| IdListInit:list COMMA ID:val ASSIGN Expr:e {:RESULT = new IdListInitOp(list, new IdOp(val), e);:}
+;
+
+IdListInitObbl ::= ID:val ASSIGN Const:c {:RESULT = new IdListInitObblOp(new IdOp(val), c);:}
+	| IdListInitObbl:list COMMA ID:val ASSIGN Const:c {:RESULT = new IdListInitObblOp(list, new IdOp(val), c);:}
+;
+
+Const ::= INTEGER_CONST:c {:RESULT = new ConstOp(c);:}
+    | REAL_CONST:c {:RESULT = new ConstOp(c);:}
+    | TRUE {:RESULT = new ConstOp(true);:}
+    | FALSE {:RESULT = new ConstOp(false);:}
+    | STRING_CONST:c {:RESULT = new ConstOp(c);:}
+;
+
+Fun ::= FUN ID:val LPAR ParamDeclList:paramList RPAR COLON Type:t
+		VarDeclList:varDeclList StatList:statList END FUN SEMI {:RESULT = new FunOp(new IdOp(val), paramList, t, varDeclList, statList);:}
+	| FUN ID:val LPAR ParamDeclList:paramList RPAR
+		VarDeclList:varDeclList StatList:statList END FUN SEMI {:RESULT = new FunOp(new IdOp(val), paramList, varDeclList, statList);:}
+;
+
+ParamDeclList ::= /*empty */ {:RESULT = new ParamDeclListOp();:}
+	| NonEmptyParamDeclList:list {:RESULT = new ParamDeclListOp(list);:}
+;
+
+NonEmptyParamDeclList ::= ParDecl:p {:RESULT = new NonEmptyParamDeclListOp(p);:}
+	| NonEmptyParamDeclList:list COMMA ParDecl:p {:RESULT = new NonEmptyParamDeclListOp(list, p);:}
+;
+
+ParDecl ::= Type:type ID:val {:RESULT = new ParDeclOp(new InOutOp("in"), type, new IdOp(val));:}
+	| OUT Type:type ID:val {:RESULT = new ParDeclOp(new InOutOp("out"), type, new IdOp(val));:}
+;
+
+StatList ::= Stat:stat SEMI StatList:list {:RESULT = new StatOpList(stat, list);:}
+	 | /* empty  */ {:RESULT = new StatOpList();:} //TODO: Controllare il funzionamento della ricorsione sinistra vuota
+;
+
+Stat ::= IfStat:s {:RESULT = new StatOp(s);:}
+	| WhileStat:s {:RESULT = new StatOp(s);:}
+	| ReadStat:s {:RESULT = new StatOp(s);:}
+	| WriteStat:s {:RESULT = new StatOp(s);:}
+	| AssignStat:s {:RESULT = new StatOp(s);:}
+	| CallFun:s {:RESULT = new StatOp(s);:}
+	| RETURN Expr:e {:RESULT = new StatOp(e);:}
+;
+
+IfStat ::= IF Expr:e THEN VarDeclList:v StatList:s Else:el END IF {:RESULT = new IfStatOp(e, v, s, el);:}
+;
+
+Else ::= /* empty */ {:RESULT = new ElseOp();:} //TODO: Controllare il funzionamento dell'else vuoto
+	| ELSE VarDeclList:v StatList:s {:RESULT = new ElseOp(v, s);:}
+;
+
+WhileStat ::= WHILE Expr:e LOOP VarDeclList:v StatList:s END LOOP {:RESULT = new WhileStatOp(e, v, s);:}
+;
+
+ReadStat ::= READ IdList:list Expr:e {:RESULT = new ReadStatOp(list, e);:}// Expr deve essere di tipo stringa
+	| READ IdList:list {:RESULT = new ReadStatOp(list);:}
+;
+
+IdList ::= ID:val {:RESULT = new IdListOp(new ExprNode(val));:}
+	| IdList:list COMMA ID:val {:RESULT = new IdListOp(new ExprNode(val), list);:}
+;
+
+WriteStat ::= WRITE Expr:e {:RESULT = new WriteStatOp("WRITE", e);:}
+	| WRITELN Expr:e {:RESULT = new WriteStatOp("WRITELN", e);:}
+	| WRITET Expr:e {:RESULT = new WriteStatOp("WRITET", e);:}
+	| WRITEB Expr:e {:RESULT = new WriteStatOp("WRITEB", e);:}
+;
+
+
+AssignStat ::= ID:lval ASSIGN Expr:rval {:RESULT = new AssignStatOp(new IdOp(lval), rval);:}
+;
+
+CallFun ::= ID:val LPAR ExprList:list RPAR {:RESULT = new CallFunOp(list, new FunctionNameOp(val));:}
+	| ID:val LPAR RPAR {:RESULT = new CallFunOp(new FunctionNameOp(val));:}
+;
+
+ExprList ::= Expr:e {:RESULT = new ExprListOp(new InOutOp("in"), e);:}
+	| Expr:e COMMA ExprList:list {:RESULT = new ExprListOp(new InOutOp("in"), e, list);:}
+	| OUTPAR ID:val {:RESULT = new ExprListOp(new InOutOp("out"), new IdOp(val));:}
+	| OUTPAR ID:val COMMA ExprList:list {:RESULT = new ExprListOp(new InOutOp("out"), new IdOp(val), list);:}
+;
+
+Expr ::= TRUE {:RESULT = new ExprNode(true);:}
+	| FALSE {:RESULT = new ExprNode(false);:}
+	| INTEGER_CONST:val {:RESULT = new ExprNode(val);:}
+	| REAL_CONST:val {:RESULT = new ExprNode(val);:}
+	| STRING_CONST:val {:RESULT = new ExprNode(val);:}
+	| ID:val {:RESULT = new ExprNode(val);:}
+	| CallFun:c {:RESULT = new ExprNode(c);:}
+	| Expr:e1 PLUS Expr:e2 {:RESULT = new ExprNode(e1, e2, "+");:}
+	| Expr:e1 MINUS Expr:e2 {:RESULT = new ExprNode(e1, e2, "-");:}
+	| Expr:e1 TIMES Expr:e2 {:RESULT = new ExprNode(e1, e2, "*");:}
+	| Expr:e1 DIV Expr:e2 {:RESULT = new ExprNode(e1, e2, "/");:}
+	| Expr:e1 DIVINT Expr:e2 {:RESULT = new ExprNode(e1, e2, "DivInt");:}
+	| Expr:e1 AND Expr:e2 {:RESULT = new ExprNode(e1, e2, "AND");:}
+	| Expr:e1 POW Expr:e2 {:RESULT = new ExprNode(e1, e2, "^");:}
+	| Expr:e1 STR_CONCAT Expr:e2 {:RESULT = new ExprNode(e1, e2, "&");:}
+	| Expr:e1 OR Expr:e2 {:RESULT = new ExprNode(e1, e2, "OR");:}
+	| Expr:e1 GT Expr:e2 {:RESULT = new ExprNode(e1, e2, ">");:}
+	| Expr:e1 GE Expr:e2 {:RESULT = new ExprNode(e1, e2, ">=");:}
+	| Expr:e1 LT Expr:e2 {:RESULT = new ExprNode(e1, e2, "<");:}
+	| Expr:e1 LE Expr:e2 {:RESULT = new ExprNode(e1, e2, "<=");:}
+	| Expr:e1 EQ Expr:e2 {:RESULT = new ExprNode(e1, e2, "=");:}
+	| Expr:e1 NE Expr:e2 {:RESULT = new ExprNode(e1, e2, "!=");:}
+	| MINUS Expr:e {:RESULT = new ExprNode(e, "UMINUS");:} %prec UMINUS
+	| NOT Expr:e {:RESULT = new ExprNode(e, "NOT");:}
+	| LPAR Expr:e RPAR {:RESULT = e;:}
+;
