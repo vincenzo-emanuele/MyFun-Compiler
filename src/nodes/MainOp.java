@@ -6,4 +6,10 @@ public class MainOp extends SyntaxNode{
         add(list);
         add(statOpList);
     }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
+    }
+
 }

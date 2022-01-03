@@ -8,51 +8,109 @@ import java.util.ArrayList;
 public class ScopeVisitor implements Visitor {
     @Override
     public Object visit(AssignStatOp statOp) {
-        return null;
-    }
-
-    @Override
-    public Object visit(BodyOp bodyOp) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) statOp.getParent()).getSymbolNode();
+        statOp.setSymbolNode(parentSymbolNode);
+        IdOp idOp = (IdOp) statOp.getChildAt(0);
+        idOp.accept(this);
+        ExprNode exprNode = (ExprNode) statOp.getChildAt(1);
+        exprNode.accept(this);
         return null;
     }
 
     @Override
     public Object visit(CallFunOp callFunOp) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) callFunOp.getParent()).getSymbolNode();
+        callFunOp.setSymbolNode(parentSymbolNode);
+        FunctionNameOp functionNameOp = (FunctionNameOp) callFunOp.getChildAt(0);
+        functionNameOp.accept(this);
+        if(callFunOp.getChildCount() == 2){
+            ExprListOp exprListOp = (ExprListOp) callFunOp.getChildAt(1);
+            exprListOp.accept(this);
+        }
         return null;
     }
 
     @Override
     public Object visit(CallParam callParam) {
-        return null;
-    }
-
-    @Override
-    public Object visit(CallParamList callParamList) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) callParam.getParent()).getSymbolNode();
+        callParam.setSymbolNode(parentSymbolNode);
+        ExprNode exprNode = (ExprNode) callParam.getChildAt(0);
+        exprNode.accept(this);
+        InOutOp inOutOp = (InOutOp) callParam.getChildAt(1);
+        inOutOp.accept(this);
         return null;
     }
 
     @Override
     public Object visit(ConstOp constOp) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) constOp.getParent()).getSymbolNode();
+        constOp.setSymbolNode(parentSymbolNode);
         return constOp.getUserObject();
     }
 
     @Override
     public Object visit(ElseOp elseOp) {
+        //Dal momento che ElseOp non deve vedere lo scope creato da IfStaOp, viene preso quello del nonno
+        SymbolNode parentSymbolNode = ((SyntaxNode) elseOp.getParent().getParent()).getSymbolNode();
+        SymbolNode newSymbolNode = new SymbolNode(parentSymbolNode);
+        parentSymbolNode.add(newSymbolNode);
+        if(elseOp.getChildCount() != 0){
+            VarDeclOpList varDeclOpList = (VarDeclOpList) elseOp.getChildAt(0);
+            StatOpList statOpList = (StatOpList) elseOp.getChildAt(1);
+            ArrayList<Record> varDeclOpListRecords = (ArrayList<Record>) varDeclOpList.accept(this);
+            statOpList.accept(this);
+            for(Record r : varDeclOpListRecords){
+                if(!newSymbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
+                    throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata!");
+                }
+            }
+        }
         return null;
     }
 
     @Override
     public Object visit(ExprListOp exprListOp) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) exprListOp.getParent()).getSymbolNode();
+        exprListOp.setSymbolNode(parentSymbolNode);
+        InOutOp inOutOp = (InOutOp) exprListOp.getChildAt(0);
+        inOutOp.accept(this);
+        if(exprListOp.getChildAt(1) instanceof ExprNode){
+            ExprNode exprNode = (ExprNode) exprListOp.getChildAt(1);
+            exprNode.accept(this);
+        } else {
+            IdOp idOp = (IdOp) exprListOp.getChildAt(1);
+            idOp.accept(this);
+        }
+        if(exprListOp.getChildCount() == 3){
+            ExprListOp exprListOp1 = (ExprListOp) exprListOp.getChildAt(2);
+            exprListOp1.accept(this);
+        }
         return null;
     }
 
     @Override
     public Object visit(ExprNode exprNode) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) exprNode.getParent()).getSymbolNode();
+        exprNode.setSymbolNode(parentSymbolNode);
+        if(exprNode.getChildCount() == 2){
+            ExprNode e1 = (ExprNode) exprNode.getChildAt(0);
+            ExprNode e2 = (ExprNode) exprNode.getChildAt(1);
+            e1.accept(this);
+            e2.accept(this);
+        } else if(exprNode.getChildCount() != 0 && exprNode.getChildAt(0) instanceof ExprNode){
+            ExprNode e1 = (ExprNode) exprNode.getChildAt(0);
+            e1.accept(this);
+        } else if(exprNode.getChildCount() != 0 && exprNode.getChildAt(0) instanceof CallFunOp){
+            CallFunOp callFunOp = (CallFunOp) exprNode.getChildAt(0);
+            callFunOp.accept(this);
+        }
         return null;
     }
 
     @Override
     public Object visit(FunctionNameOp functionNameOp) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) functionNameOp.getParent()).getSymbolNode();
+        functionNameOp.setSymbolNode(parentSymbolNode);
         return null;
     }
 
@@ -82,9 +140,11 @@ public class ScopeVisitor implements Visitor {
             //parentSymbolNode.add(id, new SymbolType("Fun", formattedType));
             varDeclOpList = (VarDeclOpList) funOp.getChildAt(3);
             statOpList = (StatOpList) funOp.getChildAt(4);
+            statOpList.accept(this);
         } else {
             varDeclOpList = (VarDeclOpList) funOp.getChildAt(2);
             statOpList = (StatOpList) funOp.getChildAt(3);
+            statOpList.accept(this);
         }
         outRecord.setType(formattedType);
         ArrayList<Record> varDeclIds = (ArrayList<Record>) varDeclOpList.accept(this);
@@ -94,8 +154,8 @@ public class ScopeVisitor implements Visitor {
         outIds.addAll(varDeclIds);
         //outIds.addAll(statOpIds);
         for(Record r : outIds){
-            if(!newSymbolNode.add(r.getLexeme(), new SymbolType("Var", r.getType()))){
-                System.out.println("VARIABILE GIA DICHIARATA"); //TODO: gestione dell'errore
+            if(!newSymbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
+                throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata!");
             }
         }
         return outRecord;
@@ -111,7 +171,6 @@ public class ScopeVisitor implements Visitor {
             Record funOpRecord = (Record) funOp.accept(this);
             FunOpList funOpList1 = (FunOpList) funOpList.getChildAt(1);
             ids = (ArrayList<Record>) funOpList1.accept(this);
-            //System.out.println("LISTAA " + ids);
             ids.add(funOpRecord);
         }
         return ids;
@@ -181,6 +240,14 @@ public class ScopeVisitor implements Visitor {
 
     @Override
     public Object visit(IdListOp idListOp) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) idListOp.getParent()).getSymbolNode();
+        idListOp.setSymbolNode(parentSymbolNode);
+        ExprNode exprNode = (ExprNode) idListOp.getChildAt(0);
+        exprNode.accept(this);
+        if(idListOp.getChildCount() == 2){
+            IdListOp idListOp1 = (IdListOp) idListOp.getChildAt(1);
+            idListOp1.accept(this);
+        }
         return null;
     }
 
@@ -193,27 +260,56 @@ public class ScopeVisitor implements Visitor {
     }
 
     @Override
-    public Object visit(IfStatOp ifStatOp) {
+    public Object visit(IfStatOp ifStatOp) {    //IfStatOp crea un nuovo scope
+        SymbolNode parentSymbolNode = ((SyntaxNode) ifStatOp.getParent()).getSymbolNode();
+        ifStatOp.setSymbolNode(parentSymbolNode);
+        //Si assegna a ExprNode la tabella del padre
+        ExprNode exprNode = (ExprNode) ifStatOp.getChildAt(0);
+        exprNode.accept(this);
+        //A questo punto si può creare il nuovo scope
+        SymbolNode newSymbolNode = new SymbolNode(parentSymbolNode);
+        ifStatOp.setSymbolNode(newSymbolNode);
+        parentSymbolNode.add(newSymbolNode);
+        VarDeclOpList varDeclOpList = (VarDeclOpList) ifStatOp.getChildAt(1);
+        StatOpList statOpList = (StatOpList) ifStatOp.getChildAt(2);
+        ElseOp elseOp = (ElseOp) ifStatOp.getChildAt(3);
+        ArrayList<Record> varDeclOpListRecords = (ArrayList<Record>) varDeclOpList.accept(this);
+        statOpList.accept(this);
+        elseOp.accept(this);
+        ArrayList<Record> records = new ArrayList<>();
+        records.addAll(varDeclOpListRecords);
+        //records.addAll(statOpListRecords);
+        //records.addAll(elseOpRecords);
+        for(Record r : records){
+            if(!newSymbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
+                throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata!");
+            }
+        }
         return null;
     }
 
     @Override
     public Object visit(InOutOp inOutOp) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) inOutOp.getParent()).getSymbolNode();
+        inOutOp.setSymbolNode(parentSymbolNode);
         return null;
     }
 
     @Override
     public Object visit(MainOp mainOp) {
-        return null;
-    }
-
-    @Override
-    public Object visit(NodeOp nodeOp) {
-        return null;
-    }
-
-    @Override
-    public Object visit(NodeValue nodeValue) {
+        SymbolNode symbolNode = ((SyntaxNode) mainOp.getParent()).getSymbolNode();
+        SymbolNode newSymbolNode = new SymbolNode(symbolNode);
+        mainOp.setSymbolNode(newSymbolNode);
+        symbolNode.add(newSymbolNode);
+        VarDeclOpList varDeclOpList = (VarDeclOpList) mainOp.getChildAt(0);
+        ArrayList<Record> records = (ArrayList<Record>) varDeclOpList.accept(this);
+        for(Record r : records){
+            if(!newSymbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
+                throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata!");
+            }
+        }
+        StatOpList statOpList = (StatOpList) mainOp.getChildAt(1);
+        statOpList.accept(this);
         return null;
     }
 
@@ -257,7 +353,6 @@ public class ScopeVisitor implements Visitor {
         IdOp idOp = (IdOp) parDeclOp.getChildAt(2);
         String type = (String) typeOp.accept(this);
         String id = ((Record) idOp.accept(this)).getLexeme();
-        System.out.println("ID: " + id);
         return new Record(id, type);
     }
 
@@ -268,8 +363,10 @@ public class ScopeVisitor implements Visitor {
         if(programOp.getChildAt(0) != null){    //VarDeclOpList
             VarDeclOpList varDeclOpList = (VarDeclOpList) programOp.getChildAt(0);
             ArrayList<Record> records = (ArrayList<Record>) varDeclOpList.accept(this);
-            for(Record record : records){
-                symbolNode.add(record.getLexeme(), new SymbolType("Var", record.getType()));
+            for(Record r : records){
+                if(!symbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
+                    throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata");
+                }
             }
             //visit(varDeclOpList);
         }
@@ -277,7 +374,9 @@ public class ScopeVisitor implements Visitor {
             FunOpList funOpList = (FunOpList) programOp.getChildAt(1);
             ArrayList<Record> funOpListRecords = (ArrayList<Record>) funOpList.accept(this);
             for(Record r : funOpListRecords){
-                symbolNode.add(r.getLexeme(), new SymbolType("Fun", r.getType()));
+                if(!symbolNode.add(new SymbolType(r.getLexeme(), "Fun"), r.getType())){
+                    throw new AlreadyDeclaredException("Funzione " + r.getLexeme() + " gia' dichiarata!");
+                }
             }
             //visit(funOpList);
         }
@@ -289,31 +388,79 @@ public class ScopeVisitor implements Visitor {
 
     @Override
     public Object visit(ReadStatOp readStatOp) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) readStatOp.getParent()).getSymbolNode();
+        readStatOp.setSymbolNode(parentSymbolNode);
+        IdListOp idListOp = (IdListOp) readStatOp.getChildAt(0);
+        idListOp.accept(this);
+        if(readStatOp.getChildCount() == 2){
+            ExprNode exprNode = (ExprNode) readStatOp.getChildAt(1);
+            exprNode.accept(this);
+        }
         return null;
     }
 
     @Override
     public Object visit(ReturnOp returnOp) {
+        SymbolNode symbolNode = ((SyntaxNode) returnOp.getParent()).getSymbolNode();
+        returnOp.setSymbolNode(symbolNode);
         return null;
     }
 
     @Override
     public Object visit(StatOp statOp) {
+        SymbolNode symbolNode = ((SyntaxNode) statOp.getParent()).getSymbolNode();
+        statOp.setSymbolNode(symbolNode);
+        if (statOp.getChildAt(0) instanceof IfStatOp){
+            IfStatOp ifStatOp = (IfStatOp) statOp.getChildAt(0);
+            ifStatOp.accept(this);
+        } else if(statOp.getChildAt(0) instanceof WhileStatOp){
+            WhileStatOp whileStatOp = (WhileStatOp) statOp.getChildAt(0);
+            whileStatOp.accept(this);
+        } else if(statOp.getChildAt(0) instanceof ReadStatOp){
+            ReadStatOp readStatOp = (ReadStatOp) statOp.getChildAt(0);
+            readStatOp.accept(this);
+        } else if(statOp.getChildAt(0) instanceof WriteStatOp){
+            WriteStatOp writeStatOp = (WriteStatOp) statOp.getChildAt(0);
+            writeStatOp.accept(this);
+        } else if(statOp.getChildAt(0) instanceof AssignStatOp){
+            AssignStatOp assignStatOp = (AssignStatOp) statOp.getChildAt(0);
+            assignStatOp.accept(this);
+        } else if(statOp.getChildAt(0) instanceof CallFunOp){
+            CallFunOp callFunOp = (CallFunOp) statOp.getChildAt(0);
+            callFunOp.accept(this);
+        } else {
+            ReturnOp returnOp = (ReturnOp) statOp.getChildAt(0);
+            returnOp.accept(this);
+            ExprNode exprNode = (ExprNode) statOp.getChildAt(1);
+            exprNode.accept(this);
+        }
         return null;
     }
 
     @Override
     public Object visit(StatOpList statOpList) {
+        SymbolNode symbolNode = ((SyntaxNode) statOpList.getParent()).getSymbolNode();
+        statOpList.setSymbolNode(symbolNode);
+        ArrayList<Record> outRecords = new ArrayList<>();
+        if(statOpList.getChildCount() != 0){
+            StatOp statOp = (StatOp) statOpList.getChildAt(0);
+            statOp.accept(this);
+            StatOpList statOpList1 = (StatOpList) statOpList.getChildAt(1);
+            statOpList1.accept(this);
+            //outRecords.add(r);
+        }
         return null;
     }
 
-    @Override
-    public Object visit(SyntaxNode syntaxNode) {
+    public Object visit(SyntaxNode syntaxNode){
+        //never called
         return null;
     }
 
     @Override
     public Object visit(TypeOp typeOp) {
+        SymbolNode symbolNode = ((SyntaxNode) typeOp.getParent()).getSymbolNode();
+        typeOp.setSymbolNode(symbolNode);
         return typeOp.getUserObject();
     }
 
@@ -325,7 +472,6 @@ public class ScopeVisitor implements Visitor {
             IdListInitObblOp idListInitObblOp = (IdListInitObblOp) varDeclOp.getChildAt(0);
             ArrayList<Record> ids = (ArrayList<Record>) idListInitObblOp.accept(this);
             return ids;
-            //visit(idListInitObblOp);
         } else {
             TypeOp typeOp = (TypeOp) varDeclOp.getChildAt(0);
             String type = (String) typeOp.getUserObject();
@@ -349,8 +495,6 @@ public class ScopeVisitor implements Visitor {
             ArrayList<Record> listVarDeclOpList = (ArrayList<Record>) varDeclOpList1.accept(this);
             listVarDeclOpList.addAll(listVarDeclOp);
             return listVarDeclOpList;
-            //visit(varDeclOp);
-            //visit(varDeclOpList1);
         } else {
             return new ArrayList<Record>();
         }
@@ -358,11 +502,30 @@ public class ScopeVisitor implements Visitor {
 
     @Override
     public Object visit(WhileStatOp whileStatOp) {
+        SymbolNode parentSymbolNode = ((SyntaxNode) whileStatOp.getParent()).getSymbolNode();
+        SymbolNode newSymbolNode = new SymbolNode(parentSymbolNode);
+        whileStatOp.setSymbolNode(newSymbolNode);
+        parentSymbolNode.add(newSymbolNode);
+        ExprNode exprNode = (ExprNode) whileStatOp.getChildAt(0);
+        exprNode.accept(this);
+        VarDeclOpList varDeclOpList = (VarDeclOpList) whileStatOp.getChildAt(1);
+        ArrayList<Record> records = (ArrayList<Record>) varDeclOpList.accept(this);
+        for(Record r : records){
+            if(!newSymbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
+                throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata!");
+            }
+        }
+        StatOpList statOpList = (StatOpList) whileStatOp.getChildAt(2);
+        statOpList.accept(this);
         return null;
     }
 
     @Override
     public Object visit(WriteStatOp writeStatOp) {
+        SymbolNode symbolNode = ((SyntaxNode) writeStatOp.getParent()).getSymbolNode();
+        writeStatOp.setSymbolNode(symbolNode);
+        ExprNode exprNode = (ExprNode) writeStatOp.getChildAt(0);
+        exprNode.accept(this);
         return null;
     }
 }

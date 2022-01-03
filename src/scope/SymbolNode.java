@@ -13,10 +13,14 @@ public class SymbolNode extends DefaultMutableTreeNode {
         }
     }
 
-    public boolean add(String name, SymbolType type){
-        if(payload.containsKey(name)) return false;
-        payload.put(name, type);
-        return true;
+    public boolean add(SymbolType symbolType, String type){
+        String val = payload.get(symbolType);
+        if(val == null){
+            payload.put(symbolType, type);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -26,6 +30,6 @@ public class SymbolNode extends DefaultMutableTreeNode {
                 '}';
     }
 
-    private HashMap<String, SymbolType> payload;
+    private HashMap<SymbolType, String> payload;
 
 }

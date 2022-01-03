@@ -1,9 +1,41 @@
 package scope;
 
+import java.util.Objects;
+
 public class SymbolType {
-    public SymbolType(String typeDef, String type) {
+
+    public SymbolType(String lexeme, String typeDef) {
+        this.lexeme = lexeme;
         this.typeDef = typeDef;
-        this.type = type;
+    }
+
+    public String getLexeme() {
+        return lexeme;
+    }
+
+    public void setLexeme(String lexeme) {
+        this.lexeme = lexeme;
+    }
+
+    @Override
+    public String toString() {
+        return "SymbolType{" +
+                "lexeme='" + lexeme + '\'' +
+                ", typeDef='" + typeDef + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SymbolType temp = (SymbolType) o;
+        return temp.getLexeme().equals(lexeme) && temp.getTypeDef().equals(typeDef);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lexeme, typeDef);
     }
 
     public String getTypeDef() {
@@ -14,22 +46,6 @@ public class SymbolType {
         this.typeDef = typeDef;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    @Override
-    public String toString() {
-        return "SymbolType{" +
-                "typeDef='" + typeDef + '\'' +
-                ", type='" + type + '\'' +
-                '}';
-    }
-
+    private String lexeme;
     private String typeDef;
-    private String type;
 }

@@ -8,8 +8,10 @@
 
 var c := 1;
 integer a := 3;
+string sommac;
 
 # fa somma e restituisce anche la taglia del numero, oltre che il risultato
+
 fun sommac(integer a, real b, out string size): real
 
 	real result;

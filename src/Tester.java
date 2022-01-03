@@ -30,12 +30,13 @@ public class Tester {
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) p.parse().value;
         ScopeVisitor scopeVisitor = new ScopeVisitor();
         SymbolNode symbolNode2 = (SymbolNode) scopeVisitor.visit((ProgramOp) root);
-        System.out.println(scopeVisitor.visit((ProgramOp) root));
-        System.out.println(symbolNode2.getChildAt(0));
-        System.out.println(symbolNode2.getChildAt(1));
+        DefaultMutableTreeNode symbTable = (DefaultMutableTreeNode) scopeVisitor.visit((ProgramOp) root);
+        //System.out.println(symbolNode2.getChildAt(0));
+        //System.out.println(symbolNode2.getChildAt(1));
+        //System.out.println(((FunOp) root.getChildAt(1).getChildAt(0)).getSymbolNode());
         //System.out.println(scopeVisitor.visit((ProgramOp) root));
         //System.out.println(((ProgramOp) root).accept(scopeVisitor));
-        JTree tree = new JTree(root);
+        JTree tree = new JTree(symbTable);
         JScrollPane scrollPane = new JScrollPane(tree);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
         frame.setSize(300, 150);

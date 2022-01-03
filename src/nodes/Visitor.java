@@ -2,10 +2,8 @@ package nodes;
 
 public interface Visitor {
     public Object visit(AssignStatOp statOp);
-    public Object visit(BodyOp bodyOp);
     public Object visit(CallFunOp callFunOp);
     public Object visit(CallParam callParam);
-    public Object visit(CallParamList callParamList);
     public Object visit(ConstOp constOp);
     public Object visit(ElseOp elseOp);
     public Object visit(ExprListOp exprListOp);
@@ -20,8 +18,6 @@ public interface Visitor {
     public Object visit(IfStatOp ifStatOp);
     public Object visit(InOutOp inOutOp);
     public Object visit(MainOp mainOp);
-    public Object visit(NodeOp nodeOp);
-    public Object visit(NodeValue nodeValue);
     public Object visit(NonEmptyParamDeclListOp nonEmptyParamDeclListOp);
     public Object visit(ParamDeclListOp paramDeclListOp);
     public Object visit(ParDeclOp parDeclOp);
