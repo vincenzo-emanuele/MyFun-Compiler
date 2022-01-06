@@ -159,7 +159,7 @@ Expr ::= TRUE {:RESULT = new ExprNode(true);:}
 	| INTEGER_CONST:val {:RESULT = new ExprNode(val);:}
 	| REAL_CONST:val {:RESULT = new ExprNode(val);:}
 	| STRING_CONST:val {:RESULT = new ExprNode(val);:}
-	| ID:val {:RESULT = new ExprNode(val);:}
+	| ID:val {:RESULT = new ExprNode(new IdOp(val));:}
 	| CallFun:c {:RESULT = new ExprNode(c);:}
 	| Expr:e1 PLUS Expr:e2 {:RESULT = new ExprNode(e1, e2, "+");:}
 	| Expr:e1 MINUS Expr:e2 {:RESULT = new ExprNode(e1, e2, "-");:}

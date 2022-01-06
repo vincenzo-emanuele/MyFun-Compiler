@@ -1,8 +1,9 @@
 // Circuit.java
 
-import nodes.ProgramOp;
+import nodes.*;
 import scope.ScopeVisitor;
 import scope.SymbolNode;
+import scope.SymbolType;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -31,12 +32,19 @@ public class Tester {
         ScopeVisitor scopeVisitor = new ScopeVisitor();
         SymbolNode symbolNode2 = (SymbolNode) scopeVisitor.visit((ProgramOp) root);
         DefaultMutableTreeNode symbTable = (DefaultMutableTreeNode) scopeVisitor.visit((ProgramOp) root);
-        //System.out.println(symbolNode2.getChildAt(0));
-        //System.out.println(symbolNode2.getChildAt(1));
-        //System.out.println(((FunOp) root.getChildAt(1).getChildAt(0)).getSymbolNode());
-        //System.out.println(scopeVisitor.visit((ProgramOp) root));
-        //System.out.println(((ProgramOp) root).accept(scopeVisitor));
-        JTree tree = new JTree(symbTable);
+        JTree tree = new JTree(root);
+        //WhileStatOp mainOp = ((WhileStatOp) root.getChildAt(2).getChildAt(1).getChildAt(1).getChildAt(1).getChildAt(1).getChildAt(1).getChildAt(0).getChildAt(0));
+        ProgramOp programOp = (ProgramOp) root;
+        System.out.println("PROGRAMOP: " + programOp.getSymbolNode());
+        IfStatOp ifStatOp = (IfStatOp) root.getChildAt(1).getChildAt(1).getChildAt(0).getChildAt(4).getChildAt(0).getChildAt(0);
+        System.out.println("IF: " + ifStatOp.getSymbolNode());
+        String out = ifStatOp.getSymbolNode().partialLookup(new SymbolType("result", "Var"), new SymbolType("doppio", "Var"), new SymbolType("sommac", "Fun"));
+        SymbolNode symbolNode = programOp.getSymbolNode();
+        //System.out.println(symbolNode.getParent().getParent().getParent().getParent());
+        /*while (symbolNode.getParent() != null){
+            System.out.println(symbolNode);
+            symbolNode = (SymbolNode) symbolNode.getParent();
+        }*/
         JScrollPane scrollPane = new JScrollPane(tree);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
         frame.setSize(300, 150);

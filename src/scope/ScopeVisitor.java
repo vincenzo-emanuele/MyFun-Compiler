@@ -2,8 +2,8 @@ package scope;
 
 import nodes.*;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class ScopeVisitor implements Visitor {
     @Override
@@ -53,7 +53,8 @@ public class ScopeVisitor implements Visitor {
         //Dal momento che ElseOp non deve vedere lo scope creato da IfStaOp, viene preso quello del nonno
         SymbolNode parentSymbolNode = ((SyntaxNode) elseOp.getParent().getParent()).getSymbolNode();
         SymbolNode newSymbolNode = new SymbolNode(parentSymbolNode);
-        parentSymbolNode.add(newSymbolNode);
+        elseOp.setSymbolNode(newSymbolNode);
+        //parentSymbolNode.add(newSymbolNode);
         if(elseOp.getChildCount() != 0){
             VarDeclOpList varDeclOpList = (VarDeclOpList) elseOp.getChildAt(0);
             StatOpList statOpList = (StatOpList) elseOp.getChildAt(1);
@@ -118,7 +119,7 @@ public class ScopeVisitor implements Visitor {
     public Object visit(FunOp funOp) {
         SymbolNode parentSymbolNode = ((SyntaxNode) funOp.getParent()).getSymbolNode();
         SymbolNode newSymbolNode = new SymbolNode(parentSymbolNode);
-        parentSymbolNode.add(newSymbolNode);
+        //parentSymbolNode.add(newSymbolNode);
         funOp.setSymbolNode(newSymbolNode);
         IdOp idOp = (IdOp) funOp.getChildAt(0);
         String id = ((Record) idOp.accept(this)).getLexeme();
@@ -269,7 +270,7 @@ public class ScopeVisitor implements Visitor {
         //A questo punto si può creare il nuovo scope
         SymbolNode newSymbolNode = new SymbolNode(parentSymbolNode);
         ifStatOp.setSymbolNode(newSymbolNode);
-        parentSymbolNode.add(newSymbolNode);
+        //parentSymbolNode.add(newSymbolNode);
         VarDeclOpList varDeclOpList = (VarDeclOpList) ifStatOp.getChildAt(1);
         StatOpList statOpList = (StatOpList) ifStatOp.getChildAt(2);
         ElseOp elseOp = (ElseOp) ifStatOp.getChildAt(3);
@@ -278,6 +279,7 @@ public class ScopeVisitor implements Visitor {
         elseOp.accept(this);
         ArrayList<Record> records = new ArrayList<>();
         records.addAll(varDeclOpListRecords);
+        Collections.reverse(records);
         //records.addAll(statOpListRecords);
         //records.addAll(elseOpRecords);
         for(Record r : records){
@@ -300,9 +302,10 @@ public class ScopeVisitor implements Visitor {
         SymbolNode symbolNode = ((SyntaxNode) mainOp.getParent()).getSymbolNode();
         SymbolNode newSymbolNode = new SymbolNode(symbolNode);
         mainOp.setSymbolNode(newSymbolNode);
-        symbolNode.add(newSymbolNode);
+        //symbolNode.add(newSymbolNode);
         VarDeclOpList varDeclOpList = (VarDeclOpList) mainOp.getChildAt(0);
         ArrayList<Record> records = (ArrayList<Record>) varDeclOpList.accept(this);
+        Collections.reverse(records);
         for(Record r : records){
             if(!newSymbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
                 throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata!");
@@ -349,10 +352,15 @@ public class ScopeVisitor implements Visitor {
     public Object visit(ParDeclOp parDeclOp) {
         SymbolNode symbolNode = ((SyntaxNode) parDeclOp.getParent()).getSymbolNode();
         parDeclOp.setSymbolNode(symbolNode);
+        InOutOp inOutOp = (InOutOp) parDeclOp.getChildAt(0);
+        String mode = (String) inOutOp.getUserObject();
         TypeOp typeOp = (TypeOp) parDeclOp.getChildAt(1);
         IdOp idOp = (IdOp) parDeclOp.getChildAt(2);
         String type = (String) typeOp.accept(this);
         String id = ((Record) idOp.accept(this)).getLexeme();
+        if(mode.equals("out")){
+            type = "out ".concat(type);
+        }
         return new Record(id, type);
     }
 
@@ -363,6 +371,7 @@ public class ScopeVisitor implements Visitor {
         if(programOp.getChildAt(0) != null){    //VarDeclOpList
             VarDeclOpList varDeclOpList = (VarDeclOpList) programOp.getChildAt(0);
             ArrayList<Record> records = (ArrayList<Record>) varDeclOpList.accept(this);
+            Collections.reverse(records);
             for(Record r : records){
                 if(!symbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
                     throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata");
@@ -373,6 +382,7 @@ public class ScopeVisitor implements Visitor {
         if(programOp.getChildAt(1) != null){
             FunOpList funOpList = (FunOpList) programOp.getChildAt(1);
             ArrayList<Record> funOpListRecords = (ArrayList<Record>) funOpList.accept(this);
+            Collections.reverse(funOpListRecords);
             for(Record r : funOpListRecords){
                 if(!symbolNode.add(new SymbolType(r.getLexeme(), "Fun"), r.getType())){
                     throw new AlreadyDeclaredException("Funzione " + r.getLexeme() + " gia' dichiarata!");
@@ -477,8 +487,8 @@ public class ScopeVisitor implements Visitor {
             String type = (String) typeOp.getUserObject();
             IdListInitOp idListInitOp = (IdListInitOp) varDeclOp.getChildAt(1);
             ArrayList<Record> ids = (ArrayList<Record>) idListInitOp.accept(this);
-            for(Record r : ids){
-                r.setType(type);
+            for(Record record : ids){
+                record.setType(type);
             }
             return ids;
         }
@@ -486,11 +496,11 @@ public class ScopeVisitor implements Visitor {
 
     @Override
     public Object visit(VarDeclOpList varDeclOpList) {
+        SymbolNode symbolNode = ((SyntaxNode) varDeclOpList.getParent()).getSymbolNode();
+        varDeclOpList.setSymbolNode(symbolNode);
         if(varDeclOpList.children().hasMoreElements()) {
             VarDeclOp varDeclOp = (VarDeclOp) varDeclOpList.getChildAt(0);
             VarDeclOpList varDeclOpList1 = (VarDeclOpList) varDeclOpList.getChildAt(1);
-            SymbolNode symbolNode = ((SyntaxNode) varDeclOpList.getParent()).getSymbolNode();
-            varDeclOpList.setSymbolNode(symbolNode);
             ArrayList<Record> listVarDeclOp = (ArrayList<Record>) varDeclOp.accept(this);
             ArrayList<Record> listVarDeclOpList = (ArrayList<Record>) varDeclOpList1.accept(this);
             listVarDeclOpList.addAll(listVarDeclOp);
@@ -505,11 +515,12 @@ public class ScopeVisitor implements Visitor {
         SymbolNode parentSymbolNode = ((SyntaxNode) whileStatOp.getParent()).getSymbolNode();
         SymbolNode newSymbolNode = new SymbolNode(parentSymbolNode);
         whileStatOp.setSymbolNode(newSymbolNode);
-        parentSymbolNode.add(newSymbolNode);
+        //parentSymbolNode.add(newSymbolNode);
         ExprNode exprNode = (ExprNode) whileStatOp.getChildAt(0);
         exprNode.accept(this);
         VarDeclOpList varDeclOpList = (VarDeclOpList) whileStatOp.getChildAt(1);
         ArrayList<Record> records = (ArrayList<Record>) varDeclOpList.accept(this);
+        Collections.reverse(records);
         for(Record r : records){
             if(!newSymbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
                 throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata!");

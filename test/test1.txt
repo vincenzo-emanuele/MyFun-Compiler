@@ -6,19 +6,29 @@
 
 #
 
+string IUMUS;
 var c := 1;
 integer a := 3;
 string sommac;
+string doppio;
 
 # fa somma e restituisce anche la taglia del numero, oltre che il risultato
 
-fun sommac(integer a, real b, out string size): real
+fun empty(integer k): integer
+    bool doppio;
+    string IUMUS := fafnir;
+    string fafnir;
+    string b := a, a := 'bag piggies';
+    string c := 'ciao';
+    string d := a;
+end fun;
 
-	real result;
-
-	result  :=  a + b + c;
-
+fun sommac(integer a, out integer c, real b, out string size): real
+	real result := lol;
+    integer lol;
 	if result > 100 then
+	    integer result := doppio;
+	    integer doppio;
 		var valore := 'grande';
  		size := valore;
 	else

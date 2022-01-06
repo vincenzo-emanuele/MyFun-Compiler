@@ -4,6 +4,7 @@
 //----------------------------------------------------
 
 import nodes.*;
+import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */
@@ -444,7 +445,7 @@ public class parser extends java_cup.runtime.lr_parser {
     java_cup.runtime.lr_parser parser,
     java.util.Stack            stack,
     int                        top)
-    throws Exception
+    throws java.lang.Exception
   {
     /* call code in generated class */
     return action_obj.CUP$parser$do_action(act_num, parser, stack, top);
@@ -478,7 +479,7 @@ class CUP$parser$actions {
     java_cup.runtime.lr_parser CUP$parser$parser,
     java.util.Stack            CUP$parser$stack,
     int                        CUP$parser$top)
-    throws Exception
+    throws java.lang.Exception
     {
       /* Symbol object for return from actions */
       java_cup.runtime.Symbol CUP$parser$result;
@@ -1344,7 +1345,7 @@ class CUP$parser$actions {
 		int valleft = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left;
 		int valright = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).right;
 		String val = (String)((java_cup.runtime.Symbol) CUP$parser$stack.peek()).value;
-		RESULT = new ExprNode(val);
+		RESULT = new ExprNode(new IdOp(val));
               CUP$parser$result = parser.getSymbolFactory().newSymbol("Expr",15, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1636,7 +1637,7 @@ class CUP$parser$actions {
     java_cup.runtime.lr_parser CUP$parser$parser,
     java.util.Stack            CUP$parser$stack,
     int                        CUP$parser$top)
-    throws Exception
+    throws java.lang.Exception
     {
               return CUP$parser$do_action_part00000000(
                                CUP$parser$act_num,
