@@ -1,5 +1,8 @@
 package nodes;
 
+/**Questa classe è inutile
+ * @deprecated
+ */
 public class CallParam extends SyntaxNode{
 
     public CallParam(ExprNode expr, InOutOp mode) {

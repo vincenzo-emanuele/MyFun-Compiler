@@ -6,29 +6,17 @@
 
 #
 
-string IUMUS;
 var c := 1;
-integer a := 3;
-string sommac;
-string doppio;
+
 
 # fa somma e restituisce anche la taglia del numero, oltre che il risultato
+fun sommac(integer a, real b, out string size): real
 
-fun empty(integer k): integer
-    bool doppio;
-    string IUMUS := fafnir;
-    string fafnir;
-    string b := a, a := 'bag piggies';
-    string c := 'ciao';
-    string d := a;
-end fun;
+	real result;
 
-fun sommac(integer a, out integer c, real b, out string size): real
-	real result := lol;
-    integer lol;
+	result  :=  a + b + c;
+
 	if result > 100 then
-	    integer result := doppio;
-	    integer doppio;
 		var valore := 'grande';
  		size := valore;
 	else
@@ -54,6 +42,7 @@ fun stampa(string messaggio)
 
 end fun;
 
+
 #programma main
 main
 	var a := 1, b := 2.2;
@@ -62,7 +51,7 @@ main
 
 	real risultato := sommac(a, b, @taglia);
 
-	stampa('la somma di ' & a & ' e ' & b & ' incrementata di ' & c & ' è ' & taglia);
+	stampa('la somma di ' & a + 2.8 & ' e ' & b & ' incrementata di ' & c & ' è ' & taglia);
 	stampa('ed è pari a ' & risultato);
 
 	?: 'vuoi continuare? (si/no)';
@@ -70,7 +59,7 @@ main
 	while ans = 'si' do
 		% a 'inserisci un intero:';
 		% b 'inserisci un reale:';
-		risultato := sommac(a, b, taglia);
+		risultato := sommac(a, b, @taglia);
 		stampa('la somma di ' & a & ' e ' & b & ' incrementata di ' & c & ' è ' & taglia);
 		stampa(' ed è pari a ' & risultato);
 		% ans 'vuoi continuare? (si/no):\t';

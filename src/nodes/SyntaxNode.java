@@ -35,6 +35,11 @@ public class SyntaxNode extends DefaultMutableTreeNode implements Visitable{
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + " TYPE: \"" + type + "\"";
+    }
+
     private String type;
     private SymbolNode symbolNode;
 }

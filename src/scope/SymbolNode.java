@@ -1,7 +1,5 @@
 package scope;
 
-import java_cup.runtime.Symbol;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.*;
 
@@ -46,9 +44,8 @@ public class SymbolNode extends DefaultMutableTreeNode {
         return null;
     }
 
-    public String partialLookup(SymbolType lval, SymbolType rval, SymbolType context){
+    public String varDeclLookup(SymbolType lval, SymbolType rval, SymbolType context){
         if(payload.containsKey(rval)){
-            System.out.println("CONTAINS");
             Object[] arr = payload.keySet().toArray();
             int lvalIndex = 0;
             int rvalIndex = 0;
@@ -66,8 +63,7 @@ public class SymbolNode extends DefaultMutableTreeNode {
                     break;
                 }
             }
-            System.out.println("LVAL INDEX: " + lvalIndex);
-            System.out.println("RVAL INDEX: " + rvalIndex);
+
             if(lvalIndex > rvalIndex){
                 return payload.get(rval);
             }
@@ -93,7 +89,6 @@ public class SymbolNode extends DefaultMutableTreeNode {
             }
         }
         if(temp == null){
-            System.out.println("NON TROVATO L'RVAL");
             return null;
         }
         //Cerco il context
@@ -104,12 +99,52 @@ public class SymbolNode extends DefaultMutableTreeNode {
                 break;
             }
         }
-        if(contextIndex == -1) return temp.getPayload().get(rval);
+        if(contextIndex == -1){
+            if (context == null) {
+                if (rval.getTypeDef().equals("Fun")) {
+                    return null;
+                }
+            }
+            return temp.getPayload().get(rval);
+        }
         if(contextIndex > keyIndex){
             return temp.getPayload().get(rval);
         } else {
             return null;
         }
+    }
+
+    public String callFunLookup(SymbolType callFun, SymbolType context) {
+        SymbolNode temp = this;
+
+        while(temp.getParent() != null) {
+            temp = (SymbolNode) temp.getParent();
+        }
+
+        int contextIndex = -1;
+        int callFunIndex = -1;
+        Object[] arr = temp.getPayload().keySet().toArray();
+        for(int i = 0; i < arr.length; i++){
+            if(arr[i].equals(context)){
+                contextIndex = i;
+                break;
+            }
+        }
+
+        for(int i = 0; i < arr.length; i++){
+            if(arr[i].equals(callFun)){
+                callFunIndex = i;
+                break;
+            }
+        }
+        if (context != null && context.equals(new SymbolType("main", "Fun"))) {
+            contextIndex = arr.length;
+        }
+
+        if (contextIndex >= callFunIndex) {
+            return temp.getPayload().get(callFun);
+        }
+        return null;
     }
 
     @Override

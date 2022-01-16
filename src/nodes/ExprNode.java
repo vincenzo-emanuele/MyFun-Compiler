@@ -15,6 +15,9 @@ public class ExprNode extends SyntaxNode{
 
     public ExprNode(Object tag){
         super(tag);
+        if(tag instanceof IdOp){
+            add((IdOp) tag);
+        }
     }
 
     public ExprNode(CallFunOp c){

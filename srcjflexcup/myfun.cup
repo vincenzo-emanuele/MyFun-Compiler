@@ -104,7 +104,7 @@ ParDecl ::= Type:type ID:val {:RESULT = new ParDeclOp(new InOutOp("in"), type, n
 ;
 
 StatList ::= Stat:stat SEMI StatList:list {:RESULT = new StatOpList(stat, list);:}
-	 | /* empty  */ {:RESULT = new StatOpList();:} //TODO: Controllare il funzionamento della ricorsione sinistra vuota
+	 | /* empty  */ {:RESULT = new StatOpList();:}
 ;
 
 Stat ::= IfStat:s {:RESULT = new StatOp(s);:}
@@ -119,7 +119,7 @@ Stat ::= IfStat:s {:RESULT = new StatOp(s);:}
 IfStat ::= IF Expr:e THEN VarDeclList:v StatList:s Else:el END IF {:RESULT = new IfStatOp(e, v, s, el);:}
 ;
 
-Else ::= /* empty */ {:RESULT = new ElseOp();:} //TODO: Controllare il funzionamento dell'else vuoto
+Else ::= /* empty */ {:RESULT = new ElseOp();:}
 	| ELSE VarDeclList:v StatList:s {:RESULT = new ElseOp(v, s);:}
 ;
 

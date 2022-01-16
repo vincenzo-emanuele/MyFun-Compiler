@@ -21,6 +21,7 @@ public class ScopeVisitor implements Visitor {
     public Object visit(CallFunOp callFunOp) {
         SymbolNode parentSymbolNode = ((SyntaxNode) callFunOp.getParent()).getSymbolNode();
         callFunOp.setSymbolNode(parentSymbolNode);
+
         FunctionNameOp functionNameOp = (FunctionNameOp) callFunOp.getChildAt(0);
         functionNameOp.accept(this);
         if(callFunOp.getChildCount() == 2){
@@ -60,6 +61,7 @@ public class ScopeVisitor implements Visitor {
             StatOpList statOpList = (StatOpList) elseOp.getChildAt(1);
             ArrayList<Record> varDeclOpListRecords = (ArrayList<Record>) varDeclOpList.accept(this);
             statOpList.accept(this);
+            Collections.reverse(varDeclOpListRecords);
             for(Record r : varDeclOpListRecords){
                 if(!newSymbolNode.add(new SymbolType(r.getLexeme(), "Var"), r.getType())){
                     throw new AlreadyDeclaredException("Variabile " + r.getLexeme() + " gia' dichiarata!");
@@ -104,6 +106,9 @@ public class ScopeVisitor implements Visitor {
         } else if(exprNode.getChildCount() != 0 && exprNode.getChildAt(0) instanceof CallFunOp){
             CallFunOp callFunOp = (CallFunOp) exprNode.getChildAt(0);
             callFunOp.accept(this);
+        } else if(exprNode.getUserObject() instanceof IdOp){
+            IdOp idOp = (IdOp) exprNode.getUserObject();
+            idOp.accept(this);
         }
         return null;
     }
@@ -151,6 +156,7 @@ public class ScopeVisitor implements Visitor {
         ArrayList<Record> varDeclIds = (ArrayList<Record>) varDeclOpList.accept(this);
         //ArrayList<Record> statOpIds = (ArrayList<Record>) statOpList.accept(this);
         ArrayList<Record> outIds = new ArrayList<>();
+        Collections.reverse(varDeclIds);
         outIds.addAll(paramDeclListIds);
         outIds.addAll(varDeclIds);
         //outIds.addAll(statOpIds);
@@ -191,7 +197,7 @@ public class ScopeVisitor implements Visitor {
             } else if(constant instanceof Integer){
                 record.setType("INTEGER");
             } else if(constant instanceof Double){
-                record.setType("DOUBLE");
+                record.setType("REAL");
             } else {
                 record.setType("STRING");
             }
@@ -210,7 +216,7 @@ public class ScopeVisitor implements Visitor {
             } else if(constant instanceof Integer){
                 record.setType("INTEGER");
             } else if(constant instanceof Double){
-                record.setType("DOUBLE");
+                record.setType("REAL");
             } else {
                 record.setType("STRING");
             }
@@ -224,6 +230,10 @@ public class ScopeVisitor implements Visitor {
         SymbolNode symbolNode = ((SyntaxNode) idListInitOp.getParent()).getSymbolNode();
         idListInitOp.setSymbolNode(symbolNode);
         if(idListInitOp.getChildAt(0) instanceof IdOp){
+            if (idListInitOp.getChildCount() == 2) {
+                ExprNode exprNode = (ExprNode) idListInitOp.getChildAt(1);
+                exprNode.accept(this);
+            }
             IdOp idOp = (IdOp) idListInitOp.getChildAt(0);
             Record record = (Record) idOp.accept(this);
             ArrayList<Record> ids = new ArrayList<Record>();
@@ -234,6 +244,10 @@ public class ScopeVisitor implements Visitor {
             ArrayList<Record> ids = (ArrayList<Record>) idListInitOp1.accept(this);
             IdOp idOp = (IdOp) idListInitOp.getChildAt(1);
             Record record = (Record) idOp.accept(this);
+            if (idListInitOp.getChildCount() == 3) {
+                ExprNode exprNode = (ExprNode) idListInitOp.getChildAt(2);
+                exprNode.accept(this);
+            }
             ids.add(record);
             return ids;
         }
@@ -487,6 +501,7 @@ public class ScopeVisitor implements Visitor {
             String type = (String) typeOp.getUserObject();
             IdListInitOp idListInitOp = (IdListInitOp) varDeclOp.getChildAt(1);
             ArrayList<Record> ids = (ArrayList<Record>) idListInitOp.accept(this);
+            Collections.reverse(ids);
             for(Record record : ids){
                 record.setType(type);
             }
