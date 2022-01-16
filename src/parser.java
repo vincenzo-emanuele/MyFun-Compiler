@@ -622,7 +622,7 @@ class CUP$parser$actions {
           case 10: // Type ::= BOOL 
             {
               TypeOp RESULT =null;
-		RESULT = new TypeOp("BOOL");
+		RESULT = new TypeOp("BOOLEAN");
               CUP$parser$result = parser.getSymbolFactory().newSymbol("Type",1, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;

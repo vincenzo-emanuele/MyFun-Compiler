@@ -63,7 +63,7 @@ VarDecl ::= Type:t IdListInit:idList SEMI {:RESULT = new VarDeclOp(t, idList);:}
 ;
 
 Type ::= INTEGER {:RESULT = new TypeOp("INTEGER");:}
-        | BOOL {:RESULT = new TypeOp("BOOL");:}
+        | BOOL {:RESULT = new TypeOp("BOOLEAN");:}
         | REAL {:RESULT = new TypeOp("REAL");:}
         | STRING {:RESULT = new TypeOp("STRING");:}
 ;
