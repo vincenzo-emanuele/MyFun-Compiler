@@ -1120,7 +1120,7 @@ class CUP$parser$actions {
 		int valleft = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left;
 		int valright = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).right;
 		String val = (String)((java_cup.runtime.Symbol) CUP$parser$stack.peek()).value;
-		RESULT = new IdListOp(new ExprNode(val));
+		RESULT = new IdListOp(new IdOp(val));
               CUP$parser$result = parser.getSymbolFactory().newSymbol("IdList",19, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1135,7 +1135,7 @@ class CUP$parser$actions {
 		int valleft = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left;
 		int valright = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).right;
 		String val = (String)((java_cup.runtime.Symbol) CUP$parser$stack.peek()).value;
-		RESULT = new IdListOp(new ExprNode(val), list);
+		RESULT = new IdListOp(new IdOp(val), list);
               CUP$parser$result = parser.getSymbolFactory().newSymbol("IdList",19, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;

@@ -1,5 +1,6 @@
 // Circuit.java
 
+import code_generation.CodeGenerationVisitor;
 import nodes.*;
 import scope.ScopeVisitor;
 import scope.SymbolNode;
@@ -34,6 +35,9 @@ public class Tester {
         DefaultMutableTreeNode symbTable = (DefaultMutableTreeNode) scopeVisitor.visit((ProgramOp) root);
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         ((ProgramOp) root).accept(typeCheckVisitor);
+        CodeGenerationVisitor codeGenerationVisitor = new CodeGenerationVisitor();
+        String code = (String) codeGenerationVisitor.visit((ProgramOp) root);
+        System.out.println(code);
         JTree tree = new JTree(root);
         JScrollPane scrollPane = new JScrollPane(tree);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);

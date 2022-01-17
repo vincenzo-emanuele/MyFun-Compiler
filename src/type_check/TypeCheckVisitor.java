@@ -231,6 +231,10 @@ public class TypeCheckVisitor implements Visitor {
             e2.accept(this);
             String type1 = e1.getType();
             String type2 = e2.getType();
+            if(type1 == null || type2 == null){
+                exprNode.setType("ERROR");
+                throw new TypeCheckException("Variabile non dichiarata");
+            }
             switch (operator){
                 case "+":
                 case "-":
@@ -380,9 +384,16 @@ public class TypeCheckVisitor implements Visitor {
         } else {
             IdOp idOp;
             ExprNode exprNode;
-            if(idListInitOp.getChildCount() == 2){ //Siamo alla fine della lista oppure è solo una variabile
+            if (idListInitOp.getChildCount() == 2 && idListInitOp.getChildAt(0) instanceof IdOp) { //Siamo alla fine della lista oppure è solo una variabile
                 idOp = (IdOp) idListInitOp.getChildAt(0);
                 exprNode = (ExprNode) idListInitOp.getChildAt(1);
+            } else if(idListInitOp.getChildCount() == 2 && idListInitOp.getChildAt(0) instanceof IdListInitOp){
+                IdListInitOp idListInitOp1 = (IdListInitOp) idListInitOp.getChildAt(0);
+                idListInitOp1.accept(this);
+                idOp = (IdOp) idListInitOp.getChildAt(1);
+                idOp.accept(this);
+                idListInitOp.setType("NOTYPE");
+                return idListInitOp.getType();
             } else { //Dobbiamo scorrere la lista e fare ad ogni inizializzazione i controlli
                 IdListInitOp idListInitOp1 = (IdListInitOp) idListInitOp.getChildAt(0);
                 idListInitOp1.accept(this);
@@ -428,13 +439,17 @@ public class TypeCheckVisitor implements Visitor {
             }
         }
         idListInitOp.setType("NOTYPE");
-        return null;
+        return idListInitOp.getType();
     }
 
     @Override
     public Object visit(IdListOp idListOp) { //Non dobbiamo fare controlli, sono solo una lista di variabili
-        ExprNode exprNode = (ExprNode) idListOp.getChildAt(0);
-        exprNode.accept(this);
+        IdOp idOp = (IdOp) idListOp.getChildAt(0);
+        idOp.accept(this);
+        if(idOp.getType() == null){
+            idListOp.setType("ERROR");
+            throw new TypeCheckException("Variabile " + idOp.getUserObject() + " non dichiarata!");
+        }
         if(idListOp.getChildCount() == 2){
             IdListOp idListOp1 = (IdListOp) idListOp.getChildAt(1);
             idListOp1.accept(this);
@@ -553,6 +568,10 @@ public class TypeCheckVisitor implements Visitor {
         if (readStatOp.getChildCount() == 2) {
             ExprNode exprNode = (ExprNode) readStatOp.getChildAt(1);
             exprNode.accept(this);
+            if(!exprNode.getType().equals("STRING")){
+                readStatOp.setType("ERROR");
+                throw new TypeCheckException("L'espressione della Read deve essere una stringa!");
+            }
         }
 
         readStatOp.setType("NOTYPE");

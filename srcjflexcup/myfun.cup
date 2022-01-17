@@ -130,8 +130,8 @@ ReadStat ::= READ IdList:list Expr:e {:RESULT = new ReadStatOp(list, e);:}// Exp
 	| READ IdList:list {:RESULT = new ReadStatOp(list);:}
 ;
 
-IdList ::= ID:val {:RESULT = new IdListOp(new ExprNode(val));:}
-	| IdList:list COMMA ID:val {:RESULT = new IdListOp(new ExprNode(val), list);:}
+IdList ::= ID:val {:RESULT = new IdListOp(new IdOp(val));:}
+	| IdList:list COMMA ID:val {:RESULT = new IdListOp(new IdOp(val), list);:}
 ;
 
 WriteStat ::= WRITE Expr:e {:RESULT = new WriteStatOp("WRITE", e);:}

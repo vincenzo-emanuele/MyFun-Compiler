@@ -257,8 +257,8 @@ public class ScopeVisitor implements Visitor {
     public Object visit(IdListOp idListOp) {
         SymbolNode parentSymbolNode = ((SyntaxNode) idListOp.getParent()).getSymbolNode();
         idListOp.setSymbolNode(parentSymbolNode);
-        ExprNode exprNode = (ExprNode) idListOp.getChildAt(0);
-        exprNode.accept(this);
+        IdOp idOp = (IdOp) idListOp.getChildAt(0);
+        idOp.accept(this);
         if(idListOp.getChildCount() == 2){
             IdListOp idListOp1 = (IdListOp) idListOp.getChildAt(1);
             idListOp1.accept(this);

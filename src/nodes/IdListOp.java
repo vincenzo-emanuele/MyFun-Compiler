@@ -1,14 +1,14 @@
 package nodes;
 
 public class IdListOp extends SyntaxNode{
-    public IdListOp(ExprNode expr){
+    public IdListOp(IdOp idOp){
         super("IdListOp");
-        add(expr);
+        add(idOp);
     }
 
-    public IdListOp(ExprNode expr, IdListOp list){
+    public IdListOp(IdOp idOp, IdListOp list){
         super("IdListOp");
-        add(expr);
+        add(idOp);
         add(list);
     }
 
