@@ -12,6 +12,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.Scanner;
 
 public class Tester {
     public static void main(String[] args) throws Exception {
@@ -37,7 +39,10 @@ public class Tester {
         ((ProgramOp) root).accept(typeCheckVisitor);
         CodeGenerationVisitor codeGenerationVisitor = new CodeGenerationVisitor();
         String code = (String) codeGenerationVisitor.visit((ProgramOp) root);
-        System.out.println(code);
+        filePath = "temp" + File.separator + "test.c";
+        FileWriter file = new FileWriter(filePath);
+        file.write(code);
+        file.close();
         JTree tree = new JTree(root);
         JScrollPane scrollPane = new JScrollPane(tree);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
