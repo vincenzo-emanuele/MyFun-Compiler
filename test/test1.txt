@@ -5,23 +5,16 @@
  Inoltre la definisce 'grande' se è superiore a 100 altrimenti 'piccola'
 
 #
+
 var c := 1;
 
-fun empty(out string l, string m)
-    ?: l;
-end fun;
-
-fun ff(out string inp)
-    empty(in, 'ciao');
-end fun;
 
 # fa somma e restituisce anche la taglia del numero, oltre che il risultato
 fun sommac(integer a, real b, out string size): real
 
 	real result;
-    string ciao;
+
 	result  :=  a + b + c;
-	ciao := 'super' & size & size & size & size;
 
 	if result > 100 then
 		var valore := 'grande';
@@ -38,8 +31,7 @@ end fun;
 # stampa il messaggio dopo 4 ritorni a capo
 fun stampa(string messaggio)
 
-    string taglia;
-	real i := sommac(1, sommac(1, 6.1, @taglia), @taglia);
+	var i := 1;
 	while i <= 4 do
 		var incremento := 1;
 		?. '';
@@ -50,38 +42,25 @@ fun stampa(string messaggio)
 
 end fun;
 
-
 #programma main
 main
 	var a := 1, b := 2.2;
 	string taglia;
-	integer inte := 2^4;
 	var ans := 'no';
 	real risultato := sommac(a, b, @taglia);
-    string size;
-    bool cond := a < (b + c) and (b < c);
-    if cond then
-        stampa('' & cond);
-    end if;
-	stampa('la somma di ' & a + 2.8 & ' e ' & b & ' incrementata di ' & c & ' è ' & taglia);
-	stampa('ed è pari a ' & risultato & cond);
+
+	stampa('la somma di ' & a & ' e ' & b & ' incrementata di ' & c & ' è ' & taglia);
+	stampa('ed è pari a ' & risultato);
+
 	?: 'vuoi continuare? (si/no)';
 	% ans;
 	while ans = 'si' do
-        real risultato;
 		% a 'inserisci un intero:';
 		% b 'inserisci un reale:';
 		risultato := sommac(a, b, @taglia);
-		stampa('la somma di ' & a & ' e ' & b & ' incrementata di ' & c & ' è ' & taglia);
+		stampa('la somma di ' & a & ' e ' & b &  ' incrementata di ' & c & ' è ' & taglia);
 		stampa(' ed è pari a ' & risultato);
 		% ans 'vuoi continuare? (si/no):\t';
-        if risultato > 100 then
-            var valore := 'grande';
-            size := valore;
-        else
-            var valore := 'piccola';
-            size := valore;
-        end if;
 	end do;
 
 	?. '';

@@ -17,14 +17,14 @@ public class TypeCheckVisitor implements Visitor {
         String lvalType = lval.getType();
         ExprNode rval = (ExprNode) statOp.getChildAt(1);
         rval.accept(this);
-        if(rval.getChildAt(0) instanceof IdOp) { //è sicuramente una variabile nel type environment
+        if(rval.getChildCount() != 0 && rval.getChildAt(0) instanceof IdOp) { //è sicuramente una variabile nel type environment
             IdOp rvalId = (IdOp) rval.getChildAt(0);
             String type = statOp.getSymbolNode().lookup(new SymbolType((String) rvalId.getUserObject(), "Var"));
             if(type == null){
                 statOp.setType("ERROR");
                 throw new TypeCheckException("Variabile " + rvalId.getUserObject() + " non dichiarata!");
             }
-        } else if(rval.getChildAt(0) instanceof CallFunOp){ //è sicuramente una chiamata a funzione
+        } else if(rval.getChildCount() != 0 && rval.getChildAt(0) instanceof CallFunOp){ //è sicuramente una chiamata a funzione
             CallFunOp callFunOp = (CallFunOp) rval.getChildAt(0);
             String functionName = (String) ((FunctionNameOp) callFunOp.getChildAt(0)).getUserObject();
             String type = statOp.getSymbolNode().callFunLookup(new SymbolType(functionName, "Fun"), context);
@@ -219,7 +219,11 @@ public class TypeCheckVisitor implements Visitor {
             } else {
                 IdOp idOp = (IdOp) exprNode.getChildAt(0);
                 String type = (String) idOp.accept(this);
-                SymbolNode symbolNode = exprNode.getSymbolNode();
+                if(type == null){
+                    exprNode.setType("ERROR");
+                    throw new TypeCheckException("Variabile " + idOp.getUserObject() + " non dichiarata");
+                }
+                //SymbolNode symbolNode = exprNode.getSymbolNode();
                 idOp.setType(type);
                 exprNode.setType(type);
             }
@@ -234,6 +238,12 @@ public class TypeCheckVisitor implements Visitor {
             if(type1 == null || type2 == null){
                 exprNode.setType("ERROR");
                 throw new TypeCheckException("Variabile non dichiarata");
+            }
+            if (type1.contains("out")) {
+                type1 = type1.split("out ")[1].trim();
+            }
+            if (type2.contains("out")) {
+                type2 = type2.split("out ")[1].trim();
             }
             switch (operator){
                 case "+":

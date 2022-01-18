@@ -4,6 +4,8 @@ import java.util.HashMap;
 %%
 %unicode
 %cup
+%line
+%column
 
 %{
     StringBuffer string = new StringBuffer();
@@ -30,12 +32,13 @@ int_const = {digit}+
 real_const = {digit}+\.{digit}+
 letter = [A-Za-z]
 id = [$_{letter}][$_{letter}{digit}]*
-single_line_comment = ("//" | "#") [^\r\n]* (\n | \r | \r\n)?
-block_comment = "#*" ~"#"
-%state STRING
-
+//single_line_comment = ("//" | "#") [^\r\n]* (\n | \r | \r\n)?
+%state STRING_SINGLE
+%state STRING_DOUBLE
+%state BLOCK_COMMENT
+%state SINGLE_COMMENT
 %%
-<YYINITIAL>{
+<YYINITIAL> {
     "main" { return new Symbol(sym.MAIN); }
     "integer" { return new Symbol(sym.INTEGER); }
     "string" { return new Symbol(sym.STRING); }
@@ -82,19 +85,38 @@ block_comment = "#*" ~"#"
     "@" {return new Symbol(sym.OUTPAR);}
     {int_const} {return new Symbol(sym.INTEGER_CONST, Integer.parseInt(yytext()));}
     {real_const} {return new Symbol(sym.REAL_CONST, Double.parseDouble(yytext()));}
-    \' {string.setLength(0); yybegin(STRING);}
+    \' {string.setLength(0); yybegin(STRING_SINGLE);}
+    \" {string.setLength(0); yybegin(STRING_DOUBLE);}
     ";" {return new Symbol(sym.SEMI);}
     "," {return new Symbol(sym.COMMA);}
     "return" {return new Symbol(sym.RETURN);}
+    #\* {yybegin(BLOCK_COMMENT);}
+    # | "//" {yybegin(SINGLE_COMMENT);}
     {id} {return new Symbol(sym.ID, yytext());}
-    {block_comment} {}
-    {single_line_comment} {}
     {whitespace} { /* ignore */ }
 }
 
-<STRING>{
+<STRING_SINGLE> {
     \' {yybegin(YYINITIAL); return new Symbol(sym.STRING_CONST, string.toString());}
     [^\'] {string.append(yytext());}
+    <<EOF>> {throw new Error("\n\nStringa non terminata < "+ yytext()+" >\n");}
+}
+
+<STRING_DOUBLE> {
+    \" {yybegin(YYINITIAL); return new Symbol(sym.STRING_CONST, string.toString());}
+    [^\"] {string.append(yytext());}
+    <<EOF>> {throw new Error("\n\nStringa non terminata < "+ yytext()+" >\n");}
+}
+
+<SINGLE_COMMENT>{
+    (\n | \r | \r\n)? {yybegin(YYINITIAL);}
+    [^\n] {}
+}
+
+<BLOCK_COMMENT> {
+    # {yybegin(YYINITIAL);}
+    [^#] {}
+    <<EOF>> {throw new Error("\n\nCommento non terminato < "+ yytext()+" >\n");}
 }
 
 [^]           { throw new Error("\n\nIllegal character < "+ yytext()+" >\n"); }
