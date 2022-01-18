@@ -153,6 +153,9 @@ public class ScopeVisitor implements Visitor {
             statOpList.accept(this);
         }
         outRecord.setType(formattedType);
+        if(!parentSymbolNode.add(new SymbolType(id, "Fun"), formattedType)){
+            throw new AlreadyDeclaredException("Funzione " + id + " gia' dichiarata!");
+        }
         ArrayList<Record> varDeclIds = (ArrayList<Record>) varDeclOpList.accept(this);
         //ArrayList<Record> statOpIds = (ArrayList<Record>) statOpList.accept(this);
         ArrayList<Record> outIds = new ArrayList<>();
@@ -397,11 +400,11 @@ public class ScopeVisitor implements Visitor {
             FunOpList funOpList = (FunOpList) programOp.getChildAt(1);
             ArrayList<Record> funOpListRecords = (ArrayList<Record>) funOpList.accept(this);
             Collections.reverse(funOpListRecords);
-            for(Record r : funOpListRecords){
+            /*for(Record r : funOpListRecords){
                 if(!symbolNode.add(new SymbolType(r.getLexeme(), "Fun"), r.getType())){
                     throw new AlreadyDeclaredException("Funzione " + r.getLexeme() + " gia' dichiarata!");
                 }
-            }
+            }*/
             //visit(funOpList);
         }
         MainOp mainOp = (MainOp) programOp.getChildAt(2);

@@ -1,5 +1,7 @@
 package scope;
 
+import nodes.SyntaxNode;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.*;
 
@@ -22,6 +24,23 @@ public class SymbolNode extends DefaultMutableTreeNode {
     }
 
     public boolean add(SymbolType symbolType, String type){
+        String typedef;
+        if(symbolType.getTypeDef().equals("Fun")){
+            typedef = "Var";
+        } else {
+            typedef = "Fun";
+        }
+        SymbolType symbolType1 = new SymbolType(symbolType.getLexeme(), typedef);
+        SymbolNode temp = this;
+        String out;
+        temp = this;
+        while(temp != null){
+            out = temp.getPayload().get(symbolType1);
+            if(out != null){
+                return false;
+            }
+            temp = (SymbolNode) temp.getParent();
+        }
         String val = payload.get(symbolType);
         if(val == null){
             payload.put(symbolType, type);
@@ -29,6 +48,7 @@ public class SymbolNode extends DefaultMutableTreeNode {
         } else {
             return false;
         }
+
     }
 
     public String lookup(SymbolType key){
