@@ -188,7 +188,7 @@ public class TypeCheckVisitor implements Visitor {
             } else {
                 exprNode.setType("BOOLEAN");
             }
-        } else if(exprNode.getChildCount() == 1){
+        } else if(exprNode.getChildCount() == 1){ //Operatore unario
             if(exprNode.getChildAt(0) instanceof ExprNode) {
                 String tag = (String) exprNode.getUserObject();
                 if (tag.equals("UMINUS")) {
@@ -202,7 +202,7 @@ public class TypeCheckVisitor implements Visitor {
                         exprNode1.setType("ERROR");
                         throw new TypeCheckException("Meno unario non valido");
                     }
-                } else {
+                } else { //Operatore NOT
                     ExprNode exprNode1 = (ExprNode) exprNode.getChildAt(0);
                     exprNode1.accept(this);
                     if (exprNode1.getType().equals("BOOLEAN")) {
@@ -227,7 +227,7 @@ public class TypeCheckVisitor implements Visitor {
                 idOp.setType(type);
                 exprNode.setType(type);
             }
-        } else {
+        } else { //Operatore binario
             String operator = (String) exprNode.getUserObject();
             ExprNode e1 = (ExprNode) exprNode.getChildAt(0);
             ExprNode e2 = (ExprNode) exprNode.getChildAt(1);
@@ -360,7 +360,7 @@ public class TypeCheckVisitor implements Visitor {
     }
 
     @Override
-    public Object visit(IdListInitObblOp idListInitObblOp) {
+    public Object visit(IdListInitObblOp idListInitObblOp) { //Lista di id su cui fare inferenza
         if(idListInitObblOp.getChildCount() == 2){
             IdOp idOp = (IdOp) idListInitObblOp.getChildAt(0);
             idOp.accept(this);
@@ -387,7 +387,7 @@ public class TypeCheckVisitor implements Visitor {
     }
 
     @Override
-    public Object visit(IdListInitOp idListInitOp) {
+    public Object visit(IdListInitOp idListInitOp) { //Lista di id che si stanno dichiarano con inzializzazione (no inferenza)
         if(idListInitOp.getChildCount() == 1){
             IdOp idOp = (IdOp) idListInitOp.getChildAt(0);
             idOp.accept(this);
