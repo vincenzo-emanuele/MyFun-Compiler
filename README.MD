@@ -10,13 +10,33 @@ Per l'analisi semantica abbiamo adottato le seguenti convenzioni:
    un valore di tipo booleano;
 4. Se un parametro è di output, ovvero il suo tipo è ```out <type>```, allora
     quando viene passato come input ad un'altra funzione viene passato come **out**
-    e non come **in**;
+    e non come **in**, mentre se viene utilizzato in un espressione (o come rval o lval),
+    viene dereferenziato in automatico;
 5. Abbiamo aggiunto il supporto alla ricorsione, tuttavia abbiamo deciso di non
     renderla disponibile per il main;
-6. La dichiarazione di un identificatore deve essere unica nello stesso type environment
-   tra funzioni e variabili. Questa scelta è dovuta al fatto che in C non è possibile assegnare
-   ad una variabile il valore restituito da una funzione con lo stesso nome.
+6. Non permettiamo l'inzializzazione di una variabile con sè stessa o con una variabile definita
+    dopo la suddetta;
+7. L'**IF** crea un nuovo scoping nel quale è possibile anche oscurare identificatori già dichiarati
+   (stesso discorso per il **WHILE**);
+8. Anche se non vengono dichiarati nuovi identificatori in un determinato livello di scoping, la tabella
+    viene creata lo stesso e lasciata vuota;
+9. Non è possibile utilizzare una funzione (o una variabile) prima che questa sia dichiarata;
+10. È previsto il meccanismo di oscuramento delle variabili;
 
+Per la generazione del codice, abbiamo fatto le seguenti scelte:
+1. vista la difficoltà nel gestire i puntatori, stringhe e le conversioni
+   verso le stringhe, come intestazione di ogni programma MyFun abbiamo deciso di aggiungere delle funzioni
+   di servizio che ci aiutano nei vari compiti;
+2. Per la dichiarazione degli identificatori, dal momento che il C non contempla un'istruzione
+   del tipo `id = id(...)` e visto che permettiamo la dichiarazione di funzioni e variabili
+   con lo stesso identificatore, nella generazione del codice viene effettuata l'aggiunta di un
+   suffisso *var* oppure *fun* se si tratta di una variabile o una funzione, rispettivamente;
+3. Quando viene fatta una **READ** su una lista di variabili (per stringhe leggere punto 4), viene generata una `scanf(...)` diversa
+    per ogni variabile e, se è presente anche l' `Expr` finale (stringa da stampare), viene generata prima
+   la rispettiva `printf(...)` e poi il resto;
+4. Per la **READ** di stringhe, visto che non esistono come tipo in C, abbiamo realizzato una helper function `getln()`
+   che permette la creazione di un `char *` di dimensione dinamica contenente la sequenza di caratteri data in input da
+   tastiera;
 
 Ulteriori type rules utilizzati durante lo sviluppo sono:
 - **DIVINT, Elevamento a potenza**
