@@ -22,6 +22,9 @@ Per l'analisi semantica abbiamo adottato le seguenti convenzioni:
     viene creata lo stesso e lasciata vuota;
 9. Non è possibile utilizzare una funzione (o una variabile) prima che questa sia dichiarata;
 10. È previsto il meccanismo di oscuramento delle variabili;
+11. Non è permesso assegnare ad una variabile il valore di una variabile che offusca, ma solamente in fase di
+    dichiarazione. Questa necessità è dovuta al fatto che il C, in questo caso, non assegna il valore della variabile 
+    esterna a quella interna ma la lascia non inizializzata, provocando così comportamenti inattesi.
 
 Per la generazione del codice, abbiamo fatto le seguenti scelte:
 1. vista la difficoltà nel gestire i puntatori, stringhe e le conversioni
