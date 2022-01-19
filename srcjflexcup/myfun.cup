@@ -79,7 +79,9 @@ IdListInitObbl ::= ID:val ASSIGN Const:c {:RESULT = new IdListInitObblOp(new IdO
 ;
 
 Const ::= INTEGER_CONST:c {:RESULT = new ConstOp(c);:}
+    | MINUS INTEGER_CONST:c {:RESULT = new ConstOp(-c);:}
     | REAL_CONST:c {:RESULT = new ConstOp(c);:}
+    | MINUS REAL_CONST:c {:RESULT = new ConstOp(-c);:}
     | TRUE {:RESULT = new ConstOp(true);:}
     | FALSE {:RESULT = new ConstOp(false);:}
     | STRING_CONST:c {:RESULT = new ConstOp(c);:}
@@ -165,7 +167,7 @@ Expr ::= TRUE {:RESULT = new ExprNode(true);:}
 	| Expr:e1 MINUS Expr:e2 {:RESULT = new ExprNode(e1, e2, "-");:}
 	| Expr:e1 TIMES Expr:e2 {:RESULT = new ExprNode(e1, e2, "*");:}
 	| Expr:e1 DIV Expr:e2 {:RESULT = new ExprNode(e1, e2, "/");:}
-	| Expr:e1 DIVINT Expr:e2 {:RESULT = new ExprNode(e1, e2, "DivInt");:}
+	| Expr:e1 DIVINT Expr:e2 {:RESULT = new ExprNode(e1, e2, "DIVINT");:}
 	| Expr:e1 AND Expr:e2 {:RESULT = new ExprNode(e1, e2, "AND");:}
 	| Expr:e1 POW Expr:e2 {:RESULT = new ExprNode(e1, e2, "^");:}
 	| Expr:e1 STR_CONCAT Expr:e2 {:RESULT = new ExprNode(e1, e2, "&");:}

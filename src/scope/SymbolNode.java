@@ -24,7 +24,7 @@ public class SymbolNode extends DefaultMutableTreeNode {
     }
 
     public boolean add(SymbolType symbolType, String type){
-        String typedef;
+        /*String typedef;
         if(symbolType.getTypeDef().equals("Fun")){
             typedef = "Var";
         } else {
@@ -40,7 +40,7 @@ public class SymbolNode extends DefaultMutableTreeNode {
                 return false;
             }
             temp = (SymbolNode) temp.getParent();
-        }
+        }*/
         String val = payload.get(symbolType);
         if(val == null){
             payload.put(symbolType, type);
@@ -48,7 +48,6 @@ public class SymbolNode extends DefaultMutableTreeNode {
         } else {
             return false;
         }
-
     }
 
     public String lookup(SymbolType key){

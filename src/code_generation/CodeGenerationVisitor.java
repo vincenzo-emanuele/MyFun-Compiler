@@ -18,7 +18,7 @@ public class CodeGenerationVisitor implements Visitor {
         if(rval.getType().contains("out")){
             rvalCode = "*" + rvalCode;
         }
-        code = lvalCode + " = " + rvalCode;
+        code = lvalCode + "var = " + rvalCode;
         return code;
     }
 
@@ -27,7 +27,7 @@ public class CodeGenerationVisitor implements Visitor {
         String code = "";
         FunctionNameOp functionNameOp = (FunctionNameOp) callFunOp.getChildAt(0);
         String functionNameOpCode = (String) functionNameOp.accept(this);
-        code += functionNameOpCode + "(";
+        code += functionNameOpCode + "fun(";
         if(callFunOp.getChildCount() == 2){
             ExprListOp exprListOp = (ExprListOp) callFunOp.getChildAt(1);
             String exprListOpCode = (String) exprListOp.accept(this);
@@ -92,7 +92,7 @@ public class CodeGenerationVisitor implements Visitor {
                 if(inOutOpCode.equals("out")){
                     code += "&";
                 }
-                code += idOpCode;
+                code += idOpCode + "var";
             }
         } else {
             if(exprListOp.getChildAt(1) instanceof ExprNode){
@@ -109,7 +109,7 @@ public class CodeGenerationVisitor implements Visitor {
                 if(inOutOpCode.equals("out")){
                     code += "&";
                 }
-                code += idOpCode + ", " + exprListOp1Code;
+                code += idOpCode + "var, " + exprListOp1Code;
             }
         }
         return code;
@@ -175,14 +175,18 @@ public class CodeGenerationVisitor implements Visitor {
                 ExprNode exprNode1 = (ExprNode) exprNode.getChildAt(0);
                 String exprNode1Code = (String) exprNode1.accept(this);
                 String op = (String) exprNode.getUserObject();
-                code = op + exprNode1Code;
+                if(op.equals("UMINUS")){
+                    code = "-" + exprNode1Code;
+                } else {
+                    code = "!" + exprNode1Code;
+                }
             } else {
                 IdOp idOp = (IdOp) exprNode.getChildAt(0);
                 String idOpCode = (String) idOp.accept(this);
                 if(idOp.getType().contains("out") && !(exprNode.getParent() instanceof ExprListOp)){
                     idOpCode = "*" + idOpCode;
                 }
-                code = idOpCode;
+                code = idOpCode + "var";
             }
         } else {
             if(exprNode.getUserObject() instanceof Boolean){
@@ -230,7 +234,7 @@ public class CodeGenerationVisitor implements Visitor {
         }
         varDeclOpListCode = (String) varDeclOpList.accept(this);
         statOpListCode = (String) statOpList.accept(this);
-        code = typeCode + " " + idOpCode + "(" + paramDeclListOpCode + ")" + "{\n" + varDeclOpListCode + statOpListCode + "\n}";
+        code = typeCode + " " + idOpCode + "fun" + "(" + paramDeclListOpCode + ")" + "{\n" + varDeclOpListCode + statOpListCode + "\n}";
         return code;
     }
 
@@ -271,7 +275,7 @@ public class CodeGenerationVisitor implements Visitor {
                     cType = "char *";
                     break;
             }
-            code = cType + " " + idOpCode + " = " + constOpCode + ";\n";
+            code = cType + " " + idOpCode + "var = " + constOpCode + ";\n";
         } else {
             IdListInitObblOp idListInitObblOp1 = (IdListInitObblOp) idListInitObblOp.getChildAt(0);
             IdOp idOp = (IdOp) idListInitObblOp.getChildAt(1);
@@ -293,7 +297,7 @@ public class CodeGenerationVisitor implements Visitor {
                     cType = "char *";
                     break;
             }
-            code = idListInitObblOp1Code + cType + " " + idOpCode + " = " + constOpCode + ";\n";
+            code = idListInitObblOp1Code + cType + " " + idOpCode + "var = " + constOpCode + ";\n";
         }
         return code;
     }
@@ -304,7 +308,7 @@ public class CodeGenerationVisitor implements Visitor {
         if(idListInitOp.getChildCount() == 1){
           IdOp idOp = (IdOp) idListInitOp.getChildAt(0);
           String idOpcode = (String) idOp.accept(this);
-          code = idOpcode;
+          code = idOpcode + "var";
         } else if(idListInitOp.getChildCount() == 2){
             if(idListInitOp.getChildAt(0) instanceof IdListInitOp){
                 IdListInitOp idListInitOp1 = (IdListInitOp) idListInitOp.getChildAt(0);
@@ -314,13 +318,13 @@ public class CodeGenerationVisitor implements Visitor {
                 if(idOp.getType().equals("STRING")){
                     idOpCode = "*" + idOpCode;
                 }
-                code = idListInitOp1Code + ", " + idOpCode;
+                code = idListInitOp1Code + ", " + idOpCode + "var";
             } else {
                 IdOp idOp = (IdOp) idListInitOp.getChildAt(0);
                 ExprNode exprNode = (ExprNode) idListInitOp.getChildAt(1);
                 String idOpCode = (String) idOp.accept(this);
                 String exprNodeCode = (String) exprNode.accept(this);
-                code = idOpCode + " = " + exprNodeCode;
+                code = idOpCode + "var = " + exprNodeCode;
             }
         } else {
             IdListInitOp idListInitOp1 = (IdListInitOp) idListInitOp.getChildAt(0);
@@ -332,7 +336,7 @@ public class CodeGenerationVisitor implements Visitor {
             if(idOp.getType().equals("STRING")){
                 idOpCode = "*" + idOpCode;
             }
-            code = idListInitOp1Code + ", " + idOpCode + " = " + exprNodeCode;
+            code = idListInitOp1Code + ", " + idOpCode + "var = " + exprNodeCode;
         }
         return code;
     }
@@ -343,12 +347,26 @@ public class CodeGenerationVisitor implements Visitor {
         IdOp idOp = (IdOp) idListOp.getChildAt(0);
         String idOpCode = (String) idOp.accept(this);
         String scanCode = "";
-        if(idOp.getType().equals("STRING")){
-            scanCode = idOpCode + " = getln();\n";
-        } else if(idOp.getType().equals("INTEGER") || idOp.getType().equals("BOOLEAN")){
-            scanCode = "scanf(\"%d\", " + "&" + idOpCode + ");\ngetchar();\n";
+        if(idOpCode.equals("op")) {
+            System.out.println(idOp.getType());
+        }
+        if(idOp.getType().contains("STRING")){
+            if(idOp.getType().contains("out")){
+                idOpCode = "*" + idOpCode;
+            }
+            scanCode = idOpCode + "var = getln();\n";
+        } else if(idOp.getType().contains("INTEGER") || idOp.getType().contains("BOOLEAN")){
+            if(idOp.getType().contains("out")){
+                scanCode = "scanf(\"%d\", " + idOpCode + "var);\ngetchar();\n";
+            } else {
+                scanCode = "scanf(\"%d\", " + "&" + idOpCode + "var);\ngetchar();\n";
+            }
         } else {
-            scanCode = "scanf(\"%lf\", " + "&" + idOpCode + ");\ngetchar();\n";
+            if(idOp.getType().contains("out")){
+                scanCode = "scanf(\"%lf\", " + idOpCode + "var);\ngetchar();\n";
+            } else {
+                scanCode = "scanf(\"%lf\", " + "&" + idOpCode + "var);\ngetchar();\n";
+            }
         }
         code = scanCode;
         if(idListOp.getChildCount() == 2){
@@ -439,7 +457,7 @@ public class CodeGenerationVisitor implements Visitor {
         if(inOutOpCode.equals("out")){
             code += "* ";
         }
-        code += idOpCode;
+        code += idOpCode + "var";
         return code;
     }
 

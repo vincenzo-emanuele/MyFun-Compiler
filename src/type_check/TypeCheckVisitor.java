@@ -264,7 +264,7 @@ public class TypeCheckVisitor implements Visitor {
                         throw new TypeCheckException("Operazione binaria non definita!");
                     }
                     break;
-                case "DivInt":
+                case "DIVINT":
                     if(type1.equals("INTEGER") && type2.equals("INTEGER")){
                         exprNode.setType("INTEGER");
                     } else {
