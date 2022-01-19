@@ -53,7 +53,7 @@ id = [$_{letter}][$_{letter}{digit}]*
     "then" {return new Symbol(sym.THEN);}
     "else" {return new Symbol(sym.ELSE);}
     "while" {return new Symbol(sym.WHILE);}
-    "do" {return new Symbol(sym.LOOP);}
+    "loop" {return new Symbol(sym.LOOP);}
     "%" {return new Symbol(sym.READ);}
     "?" {return new Symbol(sym.WRITE);}
     "?." {return new Symbol(sym.WRITELN);}
@@ -109,7 +109,8 @@ id = [$_{letter}][$_{letter}{digit}]*
 }
 
 <SINGLE_COMMENT>{
-    (\n | \r | \r\n)? {yybegin(YYINITIAL);}
+    (\n | \r | \r\n) {yybegin(YYINITIAL);}
+    <<EOF>> {yybegin(YYINITIAL);}
     [^\n] {}
 }
 
