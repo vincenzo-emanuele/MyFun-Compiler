@@ -78,5 +78,4 @@ main
         result := fibonacci(n);
         ?. result;
     end if;
-    ?. "Ciaoo";
 end main;

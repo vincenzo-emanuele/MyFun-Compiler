@@ -24,6 +24,7 @@ public class TypeCheckVisitor implements Visitor {
                 statOp.setType("ERROR");
                 throw new TypeCheckException("Variabile " + rvalId.getUserObject() + " non dichiarata!");
             }
+
         } else if(rval.getChildCount() != 0 && rval.getChildAt(0) instanceof CallFunOp){ //è sicuramente una chiamata a funzione
             CallFunOp callFunOp = (CallFunOp) rval.getChildAt(0);
             String functionName = (String) ((FunctionNameOp) callFunOp.getChildAt(0)).getUserObject();
@@ -439,6 +440,10 @@ public class TypeCheckVisitor implements Visitor {
                 if(!idOp.getType().equals(rvalType)){
                     idListInitOp.setType("ERROR");
                     throw new TypeCheckException("Assegnamento non valido!");
+                }
+                if(rval.getUserObject().equals(idOp.getUserObject())){
+                    idListInitOp.setType("ERROR");
+                    throw new TypeCheckException("Lval e rval devono avere nomi diversi o rval deve essere una funzione. Lessema: " + rval.getUserObject());
                 }
             } else { //Inizializziamo con un'espressione
                 String exprType = exprNode.getType();
