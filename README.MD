@@ -13,8 +13,9 @@ Per l'analisi semantica abbiamo adottato le seguenti convenzioni:
     e non come **in**;
 5. Abbiamo aggiunto il supporto alla ricorsione, tuttavia abbiamo deciso di non
     renderla disponibile per il main;
-6. La dichiarazione di un identificatore deve essere unica tra funzioni e variabili.
-    Questa scelta è dovuta al fatto che in C non è possibile 
+6. La dichiarazione di un identificatore deve essere unica nello stesso type environment
+   tra funzioni e variabili. Questa scelta è dovuta al fatto che in C non è possibile assegnare
+   ad una variabile il valore restituito da una funzione con lo stesso nome.
 
 
 Ulteriori type rules utilizzati durante lo sviluppo sono:
