@@ -372,7 +372,7 @@ public class CodeGenerationVisitor implements Visitor {
         if(idListOp.getChildCount() == 2){
             IdListOp idListOp1 = (IdListOp) idListOp.getChildAt(1);
             String idListOp1Code = (String) idListOp1.accept(this);
-            code += idListOp1Code;
+            code = idListOp1Code + code;
         }
         return code;
     }
