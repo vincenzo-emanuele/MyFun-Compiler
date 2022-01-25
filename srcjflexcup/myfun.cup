@@ -1,5 +1,7 @@
 // java -jar ../CUP/java-cup-11b.jar -dump -destdir src srcjflexcup/myfun.cup 2> dump_file
 // java -jar ../CUP/java-cup-11b.jar -destdir src srcjflexcup/myfun.cup
+// Windows: java -jar C:\CUP\java-cup-11b.jar -destdir src srcjflexcup/myfun.cup
+
 import nodes.*;
 terminal MAIN, VAR, OUT, INTEGER, STRING, REAL, BOOL, LPAR, RPAR, COLON, FUN, END, IF, THEN, ELSE, WHILE, LOOP, READ, WRITE, WRITELN, WRITEB, WRITET, ASSIGN, PLUS, MINUS, TIMES, DIVINT, DIV, POW, STR_CONCAT, EQ, NE, LT, LE, GT, GE, AND, OR, NOT, TRUE, FALSE, SEMI, COMMA, RETURN, OUTPAR, UMINUS;
 terminal String STRING_CONST;

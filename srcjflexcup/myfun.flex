@@ -1,4 +1,5 @@
-// ../jflex-1.8.2/bin/jflex -d src srcjflexcup/myfun.flex
+// Linux: ../jflex-1.8.2/bin/jflex -d src srcjflexcup/myfun.flex
+// Windows: C:\JFLEX\bin\jflex -d src srcjflexcup/myfun.flex
 import java_cup.runtime.Symbol; //This is how we pass tokens to the parser
 import java.util.HashMap;
 %%

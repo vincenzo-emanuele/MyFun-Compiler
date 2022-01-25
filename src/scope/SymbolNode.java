@@ -19,10 +19,6 @@ public class SymbolNode extends DefaultMutableTreeNode {
         return payload;
     }
 
-    public void setPayload(LinkedHashMap<SymbolType, String> payload) {
-        this.payload = payload;
-    }
-
     public boolean add(SymbolType symbolType, String type){
         /*String typedef;
         if(symbolType.getTypeDef().equals("Fun")){

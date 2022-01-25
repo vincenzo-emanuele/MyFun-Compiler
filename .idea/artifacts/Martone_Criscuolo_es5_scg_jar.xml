@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Martone_Criscuolo_es5_scg_jar</output-path>
     <root id="archive" name="Martone-Criscuolo_es5_scg.jar">
       <element id="module-output" name="Martone-Criscuolo_es5_scg" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../CUP/java-cup-11b-runtime.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../CUP/java-cup-11b-runtime.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

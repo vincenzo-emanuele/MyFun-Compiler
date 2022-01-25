@@ -347,9 +347,6 @@ public class CodeGenerationVisitor implements Visitor {
         IdOp idOp = (IdOp) idListOp.getChildAt(0);
         String idOpCode = (String) idOp.accept(this);
         String scanCode = "";
-        if(idOpCode.equals("op")) {
-            System.out.println(idOp.getType());
-        }
         if(idOp.getType().contains("STRING")){
             if(idOp.getType().contains("out")){
                 idOpCode = "*" + idOpCode;

@@ -1,6 +1,9 @@
 # Martone-Criscuolo_es5_scg
 
 #### Link alla Repository GitLab: https://gitlab.com/compilatori-a.a.-2021_22/myfun-semancgen-es5_mpp/martone-criscuolo_es5_scg.git
+#### Project SDK: Java 11 <br> Project Language Level: SDK Default (Java 11)
+Nota: per la compilazione del file "calcolatrice2.c" potrebbe essere necessario linkare la libreria math mediante 
+l'aggiunta del parametro "-lm" al comando "gcc".<br><br>
 Per l'analisi semantica abbiamo adottato le seguenti convenzioni:
 1. Per ```+, -, *, /``` viene assunto il tipo di dimensione maggiore
    (come mostrato anche nella tabella che ci è stata fornita);

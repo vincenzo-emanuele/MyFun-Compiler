@@ -153,6 +153,7 @@ public class ScopeVisitor implements Visitor {
             statOpList.accept(this);
         }
         outRecord.setType(formattedType);
+        //Aggiungiamo la dichiarazione della funzione alla tabella del padre
         if(!parentSymbolNode.add(new SymbolType(id, "Fun"), formattedType)){
             throw new AlreadyDeclaredException("Funzione " + id + " gia' dichiarata!");
         }

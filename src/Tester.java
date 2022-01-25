@@ -19,14 +19,14 @@ public class Tester {
     public static void main(String[] args) throws Exception {
         String filePath;
         String separator = File.separator;
-        if(args.length != 2) {
-            System.out.println("Controlla gli argomenti");
+        if(args.length != 1) {
+            System.out.println("Controllare gli argomenti (deve essere <nome_file>.txt");
             return ;
         }
         if(separator.equals("/")){
-            filePath = args[0] + "/" + args[1];
+            filePath = "test_files/" + args[0];
         } else {
-            filePath = args[0] + "\\" + args[1];
+            filePath = "test_files" + "\\" + args[0];
         }
         FileReader fr = new FileReader(filePath);
         parser p = new parser(new Yylex(fr));
@@ -39,16 +39,16 @@ public class Tester {
         ((ProgramOp) root).accept(typeCheckVisitor);
         CodeGenerationVisitor codeGenerationVisitor = new CodeGenerationVisitor();
         String code = (String) codeGenerationVisitor.visit((ProgramOp) root);
-        filePath = "temp" + File.separator + "test.c";
+        filePath = "test_files" + File.separator + "c_out" + File.separator + args[0].split(".txt")[0] + ".c";
         FileWriter file = new FileWriter(filePath);
         file.write(code);
         file.close();
-        JTree tree = new JTree(root);
+        /*JTree tree = new JTree(root);
         JScrollPane scrollPane = new JScrollPane(tree);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
         frame.setSize(700, 400);
         frame.setVisible(true);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);*/
     }
 }
 // End of file
