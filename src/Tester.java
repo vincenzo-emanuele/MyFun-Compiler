@@ -42,7 +42,6 @@ public class Tester {
         int lastSeparatorIndex = args[0].lastIndexOf(File.separator);
         int dotIndex = args[0].lastIndexOf(".");
         String fileName = filePath.substring(lastSeparatorIndex + 1, dotIndex);
-        System.out.println(fileName);
         File f = new File("test_files" + File.separator + "c_out");
         if(!f.exists()){
             if(!f.mkdirs()){

@@ -54,7 +54,20 @@ public class CodeGenerationVisitor implements Visitor {
                 code = "0";
             }
         } else if(constOp.getUserObject() instanceof String){
-            code = "\"" + constOp.getUserObject().toString() + "\"";
+            String userObject = constOp.getUserObject().toString();
+            StringBuffer stringBuffer = new StringBuffer();
+            for(int i = 0; i < userObject.length(); i++){
+                if(userObject.charAt(i) == '\''){
+                    stringBuffer.append("\\");
+                    stringBuffer.append("'");
+                } else if(userObject.charAt(i) == '\"'){
+                    stringBuffer.append("\\");
+                    stringBuffer.append("\"");
+                } else {
+                    stringBuffer.append(userObject.charAt(i));
+                }
+            }
+            code = "\"" + stringBuffer + "\"";
         } else{
             code = constOp.getUserObject().toString();
         }
@@ -197,7 +210,20 @@ public class CodeGenerationVisitor implements Visitor {
                     code = "0";
                 }
             } else if(exprNode.getUserObject() instanceof String){
-                code = "\"" + exprNode.getUserObject().toString() + "\"";
+                StringBuffer stringBuffer = new StringBuffer();
+                String userObject = exprNode.getUserObject().toString();
+                for(int i = 0; i < userObject.length(); i++){
+                    if(userObject.charAt(i) == '\''){
+                        stringBuffer.append("\\");
+                        stringBuffer.append("'");
+                    } else if(userObject.charAt(i) == '\"'){
+                        stringBuffer.append("\\");
+                        stringBuffer.append("\"");
+                    } else {
+                        stringBuffer.append(userObject.charAt(i));
+                    }
+                }
+                code = "\"" + stringBuffer + "\"";
             } else{
                 code = exprNode.getUserObject().toString();
             }

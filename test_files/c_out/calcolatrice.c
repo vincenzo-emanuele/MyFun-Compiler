@@ -8,7 +8,7 @@ char *fromRealToString(double input){ char *buffer = malloc(64*sizeof(char)); sn
 char *fromIntegerToString(int input){ char *buffer = malloc(64*sizeof(char)); snprintf(buffer, 64, "%d", input); return buffer; }
 char *fromBooleanToString(int input){ if(input == 0){ return "false"; } else { return "true"; } }
 void leggiOperazionefun(char * * opvar){
-printf("%s\n", "Scegliere l'operazione da eseguire");
+printf("%s\n", "Scegliere l\'operazione da eseguire");
 *opvar = getln();
 
 

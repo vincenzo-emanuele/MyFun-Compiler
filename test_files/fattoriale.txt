@@ -13,8 +13,7 @@ fun fattoriale(integer n): integer
 end fun;
 
 main
-    integer n := 10;
-    integer j := 5;
-    ?, n & j & 'Dimmi';
-    ?: fattoriale(8);
+    integer n;
+    % n 'Inserire un numero di cui calcolare il fattoriale';
+    ?: fattoriale(n);
 end main;
