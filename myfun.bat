@@ -1,5 +1,5 @@
 @echo off
-echo Prende file in input solo dalla cartella C:\Users\loryc\IdeaProjects\martone-criscuolo_es5_scg\test
+rem echo Prende file in input solo dalla cartella C:\Users\loryc\IdeaProjects\martone-criscuolo_es5_scg\test
 set argC=0
 for %%x in (%*) do Set /A argC+=1
 
