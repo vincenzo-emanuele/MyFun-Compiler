@@ -17,17 +17,17 @@ import java.util.Scanner;
 
 public class Tester {
     public static void main(String[] args) throws Exception {
-        String filePath;
-        String separator = File.separator;
+        //String separator = File.separator;
         if(args.length != 1) {
-            System.out.println("Controllare gli argomenti (deve essere <nome_file>.txt");
+            System.out.println("Controllare gli argomenti (deve essere /path/to/file.txt)");
             return ;
         }
-        if(separator.equals("/")){
+        /*if(separator.equals("/")){
             filePath = "test_files/" + args[0];
         } else {
             filePath = "test_files" + "\\" + args[0];
-        }
+        }*/
+        String filePath = args[0];
         FileReader fr = new FileReader(filePath);
         parser p = new parser(new Yylex(fr));
         JFrame frame = new JFrame("Manual Nodes");
@@ -39,7 +39,18 @@ public class Tester {
         ((ProgramOp) root).accept(typeCheckVisitor);
         CodeGenerationVisitor codeGenerationVisitor = new CodeGenerationVisitor();
         String code = (String) codeGenerationVisitor.visit((ProgramOp) root);
-        filePath = "test_files" + File.separator + "c_out" + File.separator + args[0].split(".txt")[0] + ".c";
+        int lastSeparatorIndex = args[0].lastIndexOf(File.separator);
+        int dotIndex = args[0].lastIndexOf(".");
+        String fileName = filePath.substring(lastSeparatorIndex + 1, dotIndex);
+        System.out.println(fileName);
+        File f = new File("test_files" + File.separator + "c_out");
+        if(!f.exists()){
+            if(!f.mkdirs()){
+                System.out.println("Errore nella generazione delle cartelle");
+                return;
+            }
+        }
+        filePath = "test_files" + File.separator + "c_out" + File.separator + fileName + ".c";
         FileWriter file = new FileWriter(filePath);
         file.write(code);
         file.close();
