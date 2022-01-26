@@ -46,7 +46,7 @@ Per la generazione del codice, abbiamo fatto le seguenti scelte:
    tastiera;
 
 Ulteriori type rules utilizzati durante lo sviluppo sono:
-- **DIVINT, Elevamento a potenza**
+- **DIVINT, Elevamento a potenza, Uguaglianza e disuguaglianza**
 
 | op     | operando1 | operando2 | risultato |
 |--------|-----------|-----------|-----------|
@@ -55,14 +55,23 @@ Ulteriori type rules utilizzati durante lo sviluppo sono:
 | POW    | REAL      | REAL      | REAL      |
 | POW    | INTEGER   | REAL      | REAL      |
 | POW    | REAL      | INTEGER   | REAL      |
+| =      | INTEGER   | INTEGER   | BOOLEAN   |
+| =      | INTEGER   | REAL      | BOOLEAN   |
+| =      | REAL      | INTEGER   | BOOLEAN   |
+| =      | REAL      | REAL      | BOOLEAN   |
+| =      | STRING    | STRING    | BOOLEAN   |
+| =      | BOOLEAN   | BOOLEAN   | BOOLEAN   |
+| !=     | INTEGER   | INTEGER   | BOOLEAN   |
+| !=     | INTEGER   | REAL      | BOOLEAN   |
+| !=     | REAL      | INTEGER   | BOOLEAN   |
+| !=     | REAL      | REAL      | BOOLEAN   |
+| !=     | STRING    | STRING    | BOOLEAN   |
+| !=     | BOOLEAN   | BOOLEAN   | BOOLEAN   |
 
 - **IF-THEN-ELSE**
 
 <img src="https://latex.codecogs.com/svg.image?\frac{\Gamma\vdash&space;e:boolean\&space;\land&space;\Gamma\vdash&space;stmt1:notype\&space;\land&space;\Gamma\vdash&space;stmt2:notype}{\Gamma\vdash&space;if\&space;e\&space;then\&space;stmt1\&space;else\&space;stmt2\&space;end\&space;if&space;:notype}" title="\frac{\Gamma\vdash e:boolean\ \land \Gamma\vdash stmt1:notype\ \land \Gamma\vdash stmt2:notype}{\Gamma\vdash if\ e\ then\ stmt1\ else\ stmt2\ end\ if :notype}" />
 
-- **Operatore di uguaglianza**
-
-<img src="https://latex.codecogs.com/svg.image?\frac{\Gamma\vdash&space;e_1:\tau&space;\land&space;\Gamma\vdash&space;e_2:\tau}{\Gamma\vdash&space;e_1&space;==&space;e_2:boolean" title="\frac{\Gamma\vdash e_1:\tau \land \Gamma\vdash e_2:\tau}{\Gamma\vdash e_1 == e_2:boolean" />
 
 - **Assegnamento con parametri di tipo out**
 
@@ -72,3 +81,6 @@ Ulteriori type rules utilizzati durante lo sviluppo sono:
 
 <img src="https://latex.codecogs.com/svg.image?\frac{\Gamma\vdash&space;id_1:\tau_1\&space;,&space;...\&space;,&space;id_i:\tau_i&space;\&space;\land&space;\Gamma\vdash&space;expr:string}{\Gamma\vdash&space;\%\&space;id_1\&space;,&space;...,\&space;&space;id_n,\&space;expr&space;:&space;notype}" title="\frac{\Gamma\vdash id_1:\tau_1\ , ...\ , id_i:\tau_i \ \land \Gamma\vdash expr:string}{\Gamma\vdash \%\ id_1\ , ...,\ id_n,\ expr : notype}" />
 
+- **Write statement**
+
+<img src="https://latex.codecogs.com/svg.image?\frac{\Gamma\vdash&space;e:\tau}{\Gamma\vdash\&space;?\&space;e:notype\&space;\lor\&space;?.\&space;e:notype\&space;\lor\&space;?,\&space;e:notype\&space;\lor\&space;?:\&space;e:notype}" title="\frac{\Gamma\vdash e:\tau}{\Gamma\vdash\ ?\ e:notype\ \lor\ ?.\ e:notype\ \lor\ ?,\ e:notype\ \lor\ ?:\ e:notype}" />
